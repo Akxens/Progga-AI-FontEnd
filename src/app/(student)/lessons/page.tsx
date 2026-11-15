@@ -14,8 +14,8 @@ import { useMe } from "@/lib/useMe";
 /** Courses catalogue: pick a class, then a subject course (Coursera-style). */
 export default function LessonsPage() {
   const { user } = useMe();
-  const { t, n } = useT();
-  const { gradeLabel } = useFormat();
+  const { t, ui } = useT();
+  const { gradeLabel, classNo } = useFormat();
   const [picked, setPicked] = useState<number | null>(null);
   const grade = picked ?? user?.grade ?? 10;
 
@@ -50,12 +50,14 @@ export default function LessonsPage() {
               aria-selected={g === grade}
               onClick={() => setPicked(g)}
               className={clsx(
-                "relative flex shrink-0 flex-col items-center rounded-2xl border-2 px-4 py-2 transition-colors",
+                // Bangla reads "৭ম শ্রেণি" (number first), English "Class 7"
+                "relative flex shrink-0 items-center rounded-2xl border-2 px-4 py-2 transition-colors",
+                ui === "bn" ? "flex-col-reverse" : "flex-col",
                 g === grade ? "border-brand-500 bg-brand-500 text-white shadow-soft" : "border-line bg-white text-ink-soft hover:border-brand-200 hover:text-ink",
               )}
             >
               <span className="text-[10px] font-extrabold uppercase tracking-wider opacity-80">{t("lessons.classLabel")}</span>
-              <span className="font-display text-xl font-extrabold leading-none">{n(g)}</span>
+              <span className="font-display text-xl font-extrabold leading-none">{classNo(g)}</span>
               {withCourses.includes(g) && (
                 <span className={clsx("absolute right-1.5 top-1.5 h-2 w-2 rounded-full", g === grade ? "bg-banana-300" : "bg-mint-500")} />
               )}
@@ -87,7 +89,7 @@ export default function LessonsPage() {
                 )}
               </div>
             )}
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {data.courses.map((c) => <CourseCard key={c.id ?? c.subject.id} course={c} grade={data.grade} />)}
             </div>
           </section>
@@ -98,7 +100,7 @@ export default function LessonsPage() {
                 <h2 className="text-2xl font-extrabold">{t("lessons.quickTitle")}</h2>
                 <p className="text-sm text-ink-soft">{t("lessons.quickBody")}</p>
               </div>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {data.quickLessons.map((l) => <LessonTile key={l.id} lesson={l} />)}
               </div>
             </section>

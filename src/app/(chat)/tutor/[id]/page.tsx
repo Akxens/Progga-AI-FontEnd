@@ -323,7 +323,7 @@ export default function TutorSessionPage({ params }: { params: Promise<{ id: str
 
   const subtitle = (
     <>
-      {session.topic} · {t(session.kind === "lesson" ? "session.modeLesson" : MODE_LABEL[session.mode])}
+      {session.topic} · {t(session.kind === "project" ? "session.modeProject" : session.kind === "lesson" ? "session.modeLesson" : MODE_LABEL[session.mode])}
       {!isFact && (
         <>
           {" · "}

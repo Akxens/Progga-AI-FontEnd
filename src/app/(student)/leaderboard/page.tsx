@@ -36,8 +36,8 @@ export default function LeaderboardPage() {
   const order = [top[1], top[0], top[2]].filter(Boolean) as Entry[];
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="text-center">
+    <div className="mx-auto max-w-7xl space-y-6">
+      <div className="text-center xl:text-left">
         <p className="eyebrow">{t("leaderboard.eyebrow", { band: tx(`bands.${data.band.id}`, data.band.label) })}</p>
         <h1 className="mt-1 text-4xl font-extrabold">{t("leaderboard.title")}</h1>
         <p className="mt-1 text-ink-soft">{t("leaderboard.body")}</p>
@@ -46,19 +46,24 @@ export default function LeaderboardPage() {
       {data.entries.length === 0 ? (
         <EmptyState icon="🏁" title={t("leaderboard.emptyTitle")} text={t("leaderboard.emptyText")} />
       ) : (
-        <>
-          <div className="flex items-end justify-center gap-3 pt-4">
-            {order.map((e) => {
-              const p = PODIUM[e.rank - 1];
-              return (
-                <div key={e.rank} className="flex w-28 flex-col items-center sm:w-36">
-                  <ProggaBot size={e.rank === 1 ? 90 : 72} palette={paletteFor(e.avatarSkin)} mood={e.rank === 1 ? "happy" : "idle"} />
-                  <p className={clsx("mt-1 max-w-full truncate font-display font-extrabold", e.isMe && "text-brand-600")}>{e.isMe ? t("leaderboard.you") : e.name}</p>
-                  <p className="text-sm font-bold text-ink-muted">{n(e.weeklyXp)} XP</p>
-                  <div className={clsx("mt-2 grid w-full place-items-start justify-center rounded-t-3xl bg-gradient-to-b pt-3 text-4xl", p.height, p.color)}>{p.medal}</div>
-                </div>
-              );
-            })}
+        // large screens: podium on the left (stays in view), full ranking on the right
+        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+          <div className="space-y-4 xl:sticky xl:top-24">
+            <div className="flex items-end justify-center gap-2 rounded-[2rem] bg-gradient-to-b from-banana-50 to-white px-3 pt-6 sm:gap-3 sm:px-4 xl:border xl:border-line">
+              {order.map((e) => {
+                const p = PODIUM[e.rank - 1];
+                return (
+                  // the three places share the width, so the podium never overflows a phone
+                  <div key={e.rank} className="flex min-w-0 max-w-36 flex-1 flex-col items-center">
+                    <ProggaBot size={e.rank === 1 ? 90 : 72} palette={paletteFor(e.avatarSkin)} mood={e.rank === 1 ? "happy" : "idle"} />
+                    <p className={clsx("mt-1 max-w-full truncate font-display font-extrabold", e.isMe && "text-brand-600")}>{e.isMe ? t("leaderboard.you") : e.name}</p>
+                    <p className="text-sm font-bold text-ink-muted">{n(e.weeklyXp)} XP</p>
+                    <div className={clsx("mt-2 grid w-full place-items-start justify-center rounded-t-3xl bg-gradient-to-b pt-3 text-4xl", p.height, p.color)}>{p.medal}</div>
+                  </div>
+                );
+              })}
+            </div>
+            {!data.me && <p className="text-center text-sm font-semibold text-ink-muted">{t("leaderboard.join")}</p>}
           </div>
 
           <div className="card divide-y divide-line overflow-hidden">
@@ -76,8 +81,7 @@ export default function LeaderboardPage() {
               </div>
             ))}
           </div>
-          {!data.me && <p className="text-center text-sm font-semibold text-ink-muted">{t("leaderboard.join")}</p>}
-        </>
+        </div>
       )}
     </div>
   );

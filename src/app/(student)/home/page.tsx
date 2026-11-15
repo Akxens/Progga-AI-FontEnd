@@ -5,8 +5,9 @@ import Link from "next/link";
 import useSWR from "swr";
 import { ProggaBot } from "@/components/brand/ProggaBot";
 import { LessonTile, QuestRow, SessionRow } from "@/components/cards";
+import { ProfileCard } from "@/components/profile/ProfileCard";
 import { ProfileCompletionCard } from "@/components/profile/ProfileCompletionCard";
-import { EmptyState, PageLoader, ProgressBar, SectionTitle, SubjectIcon } from "@/components/ui/primitives";
+import { EmptyState, PageLoader, SectionTitle, SubjectIcon } from "@/components/ui/primitives";
 import { useFormat, useT } from "@/i18n";
 import { firstName } from "@/lib/format";
 import { paletteFor } from "@/lib/skins";
@@ -16,11 +17,10 @@ import { useEngine } from "@/lib/useEngine";
 export default function HomePage() {
   const { data, mutate } = useSWR<Dashboard>("/me/dashboard");
   const { vision } = useEngine();
-  const { t, tx, n, ui } = useT();
+  const { t, n, ui } = useT();
   const { greeting, gradeLabel } = useFormat();
   if (!data) return <PageLoader label={t("common.loading")} />;
   const { user, quests } = data;
-  const lvl = user.level!;
   const questsDone = quests.filter((q) => q.claimed).length;
   const lessons = [...data.continueLessons, ...data.recommendedLessons];
 
@@ -56,14 +56,7 @@ export default function HomePage() {
 
       {/* Stats */}
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="card col-span-2 p-5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="eyebrow">{t("common.levelN", { n: lvl.level })}</p>
-            <span className="text-right text-sm font-bold text-ink-muted">{t("home.toNext", { n: lvl.nextLevelXp - lvl.xp, next: lvl.level + 1 })}</span>
-          </div>
-          <p className="mt-1 font-display text-2xl font-extrabold">{tx(`levelTitles.${lvl.title}`, lvl.title)}</p>
-          <ProgressBar value={lvl.progress} className="mt-3" height="h-4" />
-        </div>
+        <ProfileCard user={user} className="col-span-2" />
         <StatCard icon="🔥" label={t("home.dayStreak")} value={n(user.streak ?? 0)} sub={t("home.best", { n: user.bestStreak ?? 0 })} tint="bg-coral-50" />
         <StatCard icon="🏅" label={t("home.badges")} value={n(data.badgeCount)} sub={t("home.coins", { n: user.coins ?? 0 })} tint="bg-banana-50" href="/rewards" />
       </section>
@@ -103,7 +96,7 @@ export default function HomePage() {
       {/* Subjects */}
       <section>
         <SectionTitle eyebrow={gradeLabel(user.grade)} title={t("home.pickSubject")} />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6">
           {data.subjects.map((s) => (
             <Link key={s.id} href={`/tutor?subject=${s.id}`} className="card flex items-center gap-3 p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-lift">
               <SubjectIcon icon={s.icon} color={s.color} />

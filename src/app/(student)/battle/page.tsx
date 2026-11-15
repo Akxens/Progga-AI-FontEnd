@@ -2,19 +2,20 @@
 
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Crown, Flame, Shield, Swords, Users } from "lucide-react";
+import { ArrowRight, Check, Crown, Flame, Lock, Shield, Swords, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
-import { LeagueBadge, SwordsIcon, TrophyIcon } from "@/components/battle/art";
+import { LEAGUE_COLOR, LeagueBadge, SwordsIcon, TrophyIcon } from "@/components/battle/art";
+import { LeagueExplorer } from "@/components/battle/LeagueExplorer";
 import { SearchScreen } from "@/components/battle/SearchScreen";
 import { useLeagueName, useMatchmaking } from "@/components/battle/shared";
 import { PlayerAvatar } from "@/components/battle/Versus";
 import { useCelebrate } from "@/components/celebrate/CelebrationProvider";
 import { PageLoader } from "@/components/ui/primitives";
 import { useFormat, useT } from "@/i18n";
-import { type ArenaHome, fmtScore } from "@/lib/battle";
+import { type ArenaHome, type LeagueFamily, fmtScore } from "@/lib/battle";
 import { paletteFor } from "@/lib/skins";
 import { useMe } from "@/lib/useMe";
 
@@ -29,7 +30,7 @@ export default function BattleArenaPage() {
 function Arena() {
   const { user } = useMe();
   const { t, n } = useT();
-  const { timeAgo } = useFormat();
+  const { timeAgo, classNo } = useFormat();
   const leagueName = useLeagueName();
   const router = useRouter();
   const params = useSearchParams();
@@ -37,6 +38,8 @@ function Arena() {
   const { data, error, isLoading } = useSWR<ArenaHome>(user?.grade ? "/battle/arena" : null, { refreshInterval: 15_000 });
   const mm = useMatchmaking((battleId) => router.push(`/battle/${battleId}`));
   const autoStarted = useRef(false);
+  // which league the explorer shows (defaults to the student's own)
+  const [exploring, setExploring] = useState<LeagueFamily | null>(null);
 
   // "Battle again" from a result screen lands here with ?go=1
   useEffect(() => {
@@ -98,7 +101,7 @@ function Arena() {
             <p className="flex items-center justify-center gap-2 text-xs font-extrabold uppercase tracking-[0.2em] text-banana-300 md:justify-start">
               <Swords size={14} /> {t("battle.eyebrow")}
             </p>
-            <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">{t("battle.title", { n: n(data.grade) })}</h1>
+            <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">{t("battle.title", { n: classNo(data.grade) })}</h1>
             <p className="mt-1 text-indigo-100/90">{t("battle.subtitle")}</p>
 
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3 md:justify-start">
@@ -196,14 +199,23 @@ function Arena() {
       </section>
 
       {/* ── League road ── */}
-      <LeagueRoad data={data} />
+      <LeagueRoad
+        data={data}
+        onPick={(f) => {
+          setExploring(f);
+          document.getElementById("league-explorer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }}
+      />
+
+      {/* ── Who's in each league ── */}
+      <LeagueExplorer grade={data.grade} myFamily={p.league.family} family={exploring ?? p.league.family} onFamily={setExploring} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* ── Class leaderboard ── */}
         <section className="card overflow-hidden">
           <div className="flex items-center gap-3 bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-4 text-white">
             <Crown size={22} className="fill-banana-300 text-banana-300" />
-            <h2 className="font-display text-xl font-extrabold">{t("battle.leaderboard", { n: n(data.grade) })}</h2>
+            <h2 className="font-display text-xl font-extrabold">{t("battle.leaderboard", { n: classNo(data.grade) })}</h2>
           </div>
           {data.leaderboard.length === 0 ? (
             <p className="p-6 text-center font-semibold text-ink-muted">{t("battle.leaderboardEmpty")}</p>
@@ -276,57 +288,95 @@ function Arena() {
   );
 }
 
-function LeagueRoad({ data }: { data: ArenaHome }) {
-  const { t, n } = useT();
-  const leagueName = useLeagueName();
-  const scroller = useRef<HTMLDivElement>(null);
-  const currentRef = useRef<HTMLLIElement>(null);
-  const current = data.profile.league.id;
-  const currentIndex = data.leagues.findIndex((l) => l.id === current);
+const ROAD: Exclude<LeagueFamily, "unranked">[] = ["bronze", "silver", "gold", "crystal", "master", "champion", "titan", "legend"];
+const ROMAN = ["", "I", "II", "III"];
 
-  useEffect(() => {
-    const el = currentRef.current;
-    const box = scroller.current;
-    if (el && box) box.scrollTo({ left: el.offsetLeft - box.clientWidth / 2 + el.clientWidth / 2, behavior: "smooth" });
-  }, [current]);
+/** The eight leagues as cards: big icon, trophies needed, and III → II → I progress. */
+function LeagueRoad({ data, onPick }: { data: ArenaHome; onPick: (family: LeagueFamily) => void }) {
+  const { t, tx, n } = useT();
+  const leagueName = useLeagueName();
+  const currentIndex = data.leagues.findIndex((l) => l.id === data.profile.league.id);
+  const currentFamily = data.profile.league.family;
 
   return (
-    <section className="card overflow-hidden">
-      <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 pt-5">
+    <section className="card p-5 sm:p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display text-xl font-extrabold">{t("battle.leagueRoad")}</h2>
         <p className="text-sm font-semibold text-ink-muted">{t("battle.leagueRoadText")}</p>
       </div>
-      <div ref={scroller} className="overflow-x-auto px-5 pb-5 pt-4 [scrollbar-width:thin]">
-        <ol className="relative flex min-w-max items-end gap-3">
-          <span className="absolute inset-x-6 bottom-[52px] h-1.5 rounded-full bg-line" aria-hidden />
-          <span
-            className="absolute bottom-[52px] left-6 h-1.5 rounded-full bg-gradient-to-r from-banana-400 to-orange-500"
-            style={{ width: `calc(${(currentIndex / Math.max(1, data.leagues.length - 1)) * 100}% - 3rem)` }}
-            aria-hidden
-          />
-          {data.leagues.map((l, i) => {
-            const here = l.id === current;
-            const reached = i <= currentIndex;
-            return (
-              <li key={l.id} ref={here ? currentRef : undefined} className={clsx("relative flex w-[92px] flex-col items-center text-center", !reached && "opacity-90")}>
-                {here && (
-                  <motion.span animate={{ y: [0, -4, 0] }} transition={{ duration: 1.4, repeat: Infinity }} className="mb-1 rounded-full bg-banana-400 px-2 py-0.5 text-[11px] font-black uppercase text-ink shadow">
-                    {t("battle.youAreHere")} <ArrowRight size={10} className="inline rotate-90" />
-                  </motion.span>
-                )}
-                <div className={clsx("grid place-items-center rounded-2xl p-1.5 transition", here && "bg-banana-50 ring-2 ring-banana-400")}>
-                  <LeagueBadge family={l.family} division={l.division} size={here ? 62 : 50} glow={here} dim={!reached} />
-                </div>
-                <span className={clsx("relative z-10 mt-2 h-4 w-4 rounded-full border-[3px] border-white shadow", reached ? "bg-orange-500" : "bg-line")} />
-                <p className="mt-1.5 text-[11px] font-extrabold leading-tight text-ink-soft">{leagueName(l.family, l.division)}</p>
-                <p className="flex items-center gap-0.5 text-[11px] font-bold text-ink-muted">
-                  <TrophyIcon size={11} /> {n(l.min)}
-                </p>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
+      <ol className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
+        {ROAD.map((family, fi) => {
+          const divisions = data.leagues.filter((l) => l.family === family).sort((a, b) => a.min - b.min); // III, II, I
+          if (!divisions.length) return null;
+          const top = data.leagues.indexOf(divisions[divisions.length - 1]);
+          const here = family === currentFamily;
+          const done = currentIndex > top;
+          const upNext = currentFamily === "unranked" && fi === 0;
+          const locked = !here && !done;
+          const shown = here ? data.profile.league : done ? divisions[divisions.length - 1] : divisions[0];
+          const color = LEAGUE_COLOR[family];
+          return (
+            <motion.li
+              key={family}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: fi * 0.04, duration: 0.35 }}
+              // tap a league to see who's in it
+              role="button"
+              tabIndex={0}
+              onClick={() => onPick(family)}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onPick(family))}
+              className={clsx(
+                "group relative flex cursor-pointer flex-col items-center rounded-3xl border-2 px-2 pb-3 pt-4 text-center transition-transform",
+                here ? "border-transparent" : done ? "border-line bg-white hover:-translate-y-1" : "border-dashed border-line bg-cream/70",
+              )}
+              style={
+                here || upNext
+                  ? { background: `linear-gradient(180deg, ${color}2e, #ffffff 72%)`, boxShadow: `0 0 0 2px ${color}, 0 18px 36px -18px ${color}` }
+                  : undefined
+              }
+            >
+              {(here || upNext) && (
+                <span className="absolute -top-3 rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wide text-white shadow" style={{ background: color }}>
+                  {here ? t("battle.youAreHere") : t("battle.roadNext")}
+                </span>
+              )}
+              {done && (
+                <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-mint-500 text-white shadow-soft">
+                  <Check size={14} strokeWidth={3} />
+                </span>
+              )}
+              {locked && !upNext && (
+                <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-ink-muted shadow-soft">
+                  <Lock size={12} strokeWidth={2.6} />
+                </span>
+              )}
+              <motion.div animate={here ? { y: [0, -5, 0] } : undefined} transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}>
+                <LeagueBadge family={family} division={shown.division} size={here ? 92 : 76} glow={here} dim={locked && !upNext} className="transition-transform duration-200 group-hover:scale-105" />
+              </motion.div>
+              <p className="mt-2 font-display text-base font-extrabold leading-tight" style={here ? { color } : undefined}>
+                {tx(`battle.families.${family}`, family)}
+              </p>
+              <p className="mt-0.5 flex items-center gap-1 text-xs font-bold text-ink-muted">
+                <TrophyIcon size={12} /> {n(divisions[0].min)}+
+              </p>
+              <div className="mt-3 flex w-full max-w-[124px] gap-1">
+                {divisions.map((d) => {
+                  const i = data.leagues.indexOf(d);
+                  const reached = i <= currentIndex;
+                  return (
+                    <div key={d.id} className="flex-1" title={`${leagueName(d.family, d.division)} · ${n(d.min)}`}>
+                      <div className={clsx("h-1.5 rounded-full", i === currentIndex && "animate-pulse")} style={{ background: reached ? color : "var(--color-line)" }} />
+                      <p className={clsx("mt-1 font-serif text-[10px] font-black", reached ? "text-ink-soft" : "text-ink-muted/60")}>{ROMAN[d.division]}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.li>
+          );
+        })}
+      </ol>
     </section>
   );
 }

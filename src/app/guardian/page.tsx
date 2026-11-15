@@ -71,7 +71,7 @@ export default function GuardianHome() {
       {user && <ProfileCompletionCard user={user} href="/guardian/profile" />}
 
       {data.students.length > 0 && (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {data.students.map((s) => (
             <div key={s.id} className="card flex flex-col transition-all hover:-translate-y-1 hover:shadow-lift">
             <Link href={`/guardian/${s.id}`} className="group block flex-1 p-5 pb-4">

@@ -25,6 +25,12 @@ const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
 /** 123 → ১২৩ (used for numbers shown in Bangla UI). */
 export const toBnDigits = (s: string) => s.replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)]);
 
+// Bangla ordinal endings: ১ম, ২য়, ৩য়, ৪র্থ, ৫ম, ৬ষ্ঠ, ৭ম … ১০ম, ১১শ, ১২শ
+const BN_ORDINAL: Record<number, string> = { 1: "ম", 2: "য়", 3: "য়", 4: "র্থ", 6: "ষ্ঠ", 11: "শ", 12: "শ" };
+
+/** A class number the way it's said: "৭ম" in Bangla, "7" in English. */
+export const classOrdinal = (grade: number, ui: "en" | "bn") => (ui === "bn" ? `${toBnDigits(String(grade))}${BN_ORDINAL[grade] ?? "ম"}` : String(grade));
+
 function lookup(dict: Dict, key: string): string | undefined {
   let node: unknown = dict;
   for (const part of key.split(".")) {
@@ -122,9 +128,12 @@ export function useSyncAccountLanguage(user: User | undefined) {
 /** Shared date/number helpers that follow the interface language. */
 export function useFormat() {
   const { t, n, ui } = useT();
+  const cls = (grade: number) => classOrdinal(grade, ui);
   return {
+    /** "৭ম" / "7": for class pickers and anywhere a class number stands alone. */
+    classNo: cls,
     gradeLabel: (grade: number | null | undefined) =>
-      !grade ? "" : grade >= 11 ? t("common.classHSC", { n: grade }) : grade >= 9 ? t("common.classSSC", { n: grade }) : t("common.classN", { n: grade }),
+      !grade ? "" : t(grade >= 11 ? "common.classHSC" : grade >= 9 ? "common.classSSC" : "common.classN", { n: cls(grade) }),
     timeAgo: (iso: string) => {
       const diff = (Date.now() - new Date(iso).getTime()) / 1000;
       if (diff < 60) return t("time.justNow");

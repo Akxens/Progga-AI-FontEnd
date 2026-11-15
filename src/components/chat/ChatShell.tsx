@@ -9,6 +9,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import useSWR, { useSWRConfig } from "swr";
 import { Logo } from "@/components/brand/Logo";
 import { ProggaBot } from "@/components/brand/ProggaBot";
+import { Sidebar, sidebarVars, useSidebar } from "@/components/layout/Sidebar";
 import { PageLoader } from "@/components/ui/primitives";
 import { useSyncAccountLanguage, useT, type TKey } from "@/i18n";
 import { api, ApiError, errorMessage } from "@/lib/api";
@@ -48,6 +49,7 @@ export function ChatShell({ children }: { children: React.ReactNode }) {
   const { toast } = useCelebrate();
   const [collapsed, setCollapsedState] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const sidebar = useSidebar(pathname);
   const { mutate } = useSWR<{ sessions: SessionSummary[] }>(user ? "/tutor/sessions" : null);
   useSyncAccountLanguage(user);
 
@@ -99,7 +101,10 @@ export function ChatShell({ children }: { children: React.ReactNode }) {
   return (
     <ChatLayoutCtx.Provider value={value}>
       <VoiceProvider onError={() => toast(t("voice.error"), "🔇", "coral")}>
-      <div className="flex h-dvh overflow-hidden bg-white">
+      {/* the app menu sits on the left as a slim rail; the chat layout starts after it */}
+      <div className="flex h-dvh overflow-hidden bg-white transition-[padding] duration-300 ease-out lg:pl-[var(--sidebar-w)]" style={sidebarVars(sidebar.collapsed)}>
+        <Sidebar user={user} pathname={pathname} {...sidebar} />
+
         {/* Desktop history column */}
         <aside
           className={clsx(
@@ -166,7 +171,8 @@ const QUICK_LINKS: { href: string; label: TKey; icon: typeof Home }[] = [
   { href: "/rewards", label: "nav.rewards", icon: Trophy },
 ];
 
-const sessionIcon = (s: SessionSummary) => (s.kind === "lesson" ? "📘" : s.mode === "fact" ? "⚡" : s.mode === "concept" ? "🔭" : "🧩");
+const sessionIcon = (s: SessionSummary) =>
+  s.kind === "project" ? "🛠️" : s.kind === "lesson" ? "📘" : s.mode === "fact" ? "⚡" : s.mode === "concept" ? "🔭" : "🧩";
 
 /** One chat in the history list, with a delete button (asks first, inline). */
 function HistoryItem({ s, active }: { s: SessionSummary; active: boolean }) {
@@ -331,7 +337,8 @@ function HistoryPanel({ onClose, closeIcon }: { onClose: () => void; closeIcon: 
       </nav>
 
       <div className="border-t border-line p-3">
-        <div className="mb-3 grid grid-cols-4 gap-1">
+        {/* desktop has the app menu rail; these shortcuts are for the phone drawer */}
+        <div className="mb-3 grid grid-cols-4 gap-1 lg:hidden">
           {QUICK_LINKS.map(({ href, label, icon: Icon }) => (
             <Link key={href} href={href} className="flex flex-col items-center gap-1 rounded-xl py-2 text-[11px] font-bold text-ink-soft hover:bg-white hover:text-brand-600" title={t(label)}>
               <Icon size={18} />

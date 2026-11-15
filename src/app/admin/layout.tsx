@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-line bg-white/85 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div className="app-container flex items-center justify-between gap-4 py-3">
           <Link href="/admin" className="flex items-center gap-3">
             <Logo size={34} />
             <span className="hidden rounded-full bg-ink px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-white sm:inline">Admin</span>
@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">{children}</main>
+      <main className="app-container py-8">{children}</main>
     </div>
   );
 }

@@ -26,6 +26,8 @@ export interface LevelInfo {
   levelStartXp: number;
   nextLevelXp: number;
   progress: number;
+  /** level 150 reached: the bar stays full */
+  maxed?: boolean;
 }
 
 export interface User {
@@ -57,6 +59,7 @@ export type Relation = (typeof RELATIONS)[number];
 
 /** The "About me" part of an account (see backend modules/users/profile.ts). */
 export interface Profile {
+  nickname?: string;
   bio?: string;
   dream?: string;
   schoolName?: string;
@@ -180,8 +183,8 @@ export interface TutorSession {
   createdAt: string;
   /** the video lesson this question was asked from */
   lesson?: { id: string; title: string } | null;
-  /** "lesson" = a syllabus topic taught from scratch ("Start a lesson") */
-  kind?: "question" | "lesson";
+  /** "lesson" = a syllabus topic taught from scratch ("Start a lesson"); "project" = an Innovation Lab build */
+  kind?: "question" | "lesson" | "project";
 }
 
 export interface SessionSummary {

@@ -86,7 +86,7 @@ export default function RewardsPage() {
               <p className="eyebrow">{t("common.levelN", { n: ach.level.level })}</p>
               <p className="font-display text-2xl font-extrabold">{tx(`levelTitles.${ach.level.title}`, ach.level.title)}</p>
               <ProgressBar value={ach.level.progress} className="mt-3" height="h-4" />
-              <p className="mt-2 text-sm font-semibold text-ink-muted">{t("rewards.totalXp", { xp: ach.level.xp, n: ach.level.nextLevelXp - ach.level.xp })}</p>
+              <p className="mt-2 text-sm font-semibold text-ink-muted">{ach.level.maxed ? t("card.maxLevel") : t("rewards.totalXp", { xp: ach.level.xp, n: ach.level.nextLevelXp - ach.level.xp })}</p>
             </div>
             <div className="card flex items-center gap-4 p-5">
               <span className="text-5xl">🔥</span>
@@ -96,7 +96,7 @@ export default function RewardsPage() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
             {ach.badges.map((b) => (
               <div key={b.id} className={clsx("card flex flex-col items-center p-5 text-center", !b.earnedAt && "bg-cream/60")}>
                 <div className={clsx("relative grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br text-4xl shadow-soft", b.earnedAt ? TIER[b.tier] : "from-line to-line grayscale")}>
@@ -121,7 +121,7 @@ export default function RewardsPage() {
             </div>
             <p className="font-display text-4xl font-extrabold text-banana-700">{n(shop.coins)}</p>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
             {shop.skins.map((s) => {
               const equipped = shop.equipped === s.id;
               const affordable = shop.coins >= s.cost;

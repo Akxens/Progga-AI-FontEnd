@@ -16,7 +16,7 @@ export function useLeagueName() {
     (family: LeagueFamily, division: number) => {
       const name = tx(`battle.families.${family}`, family);
       if (family === "unranked") return name;
-      if (family === "legend" || !division) return t("battle.leagueName", { family: name, div: "" }).trim();
+      if (!division) return t("battle.leagueName", { family: name, div: "" }).trim();
       return t("battle.leagueName", { family: name, div: ROMAN[division] });
     },
     [t, tx],

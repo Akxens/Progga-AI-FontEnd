@@ -131,6 +131,10 @@
 @utility btn-sm {
   @apply px-3.5 py-2 text-sm rounded-xl;
 }
+/* Width of every signed-in screen: fills large monitors, gutters grow with the screen */
+@utility app-container {
+  @apply mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 2xl:px-10;
+}
 @utility card {
   @apply rounded-3xl bg-white border border-line shadow-soft;
 }

@@ -33,6 +33,38 @@ export interface ArenaHome {
   recent: { id: string; result: "win" | "loss" | "draw" | null; trophyDelta: number; myScore: number; theirScore: number; opponent: string; opponentSkin: string; at: number }[];
 }
 
+/** A student's trophies and league in their class (for profile cards). */
+export interface Standing {
+  grade: number;
+  trophies: number;
+  bestTrophies: number;
+  league: League;
+  next: League | null;
+  progress: number;
+}
+
+/** Everyone in one league of the student's class: real students + practice rivals. */
+export interface LeagueRoster {
+  grade: number;
+  family: LeagueFamily;
+  min: number;
+  max: number;
+  counts: Record<LeagueFamily, number>;
+  players: {
+    id: string;
+    rank: number;
+    name: string;
+    nameBn: string | null; // practice rivals come with a Bangla spelling
+    gender: "boy" | "girl" | null;
+    skin: string;
+    level: number;
+    trophies: number;
+    leagueId: string;
+    isBot: boolean;
+    isMe: boolean;
+  }[];
+}
+
 export type SearchState =
   | { status: "searching"; ticketId?: string; battleId: null; waitedMs?: number; online?: number; now: number }
   | { status: "matched"; battleId: string; now: number };

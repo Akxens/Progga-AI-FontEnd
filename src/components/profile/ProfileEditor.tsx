@@ -47,7 +47,7 @@ export function ProfileEditor({ user, barClassName = "bottom-6" }: { user: User;
   const { mutate: mutateAny } = useSWRConfig();
   const { toast, burst } = useCelebrate();
   const { t, tx, n, ui, lang, setLang } = useT();
-  const { gradeLabel } = useFormat();
+  const { gradeLabel, classNo } = useFormat();
 
   const [base, setBase] = useState(() => draftFrom(user));
   const [draft, setDraft] = useState(base);
@@ -296,6 +296,12 @@ export function ProfileEditor({ user, barClassName = "bottom-6" }: { user: User;
 
       {/* ── About ── */}
       <Section icon={Sparkles} tone="bg-banana-100 text-banana-700" title={student ? t("me.secAbout") : t("me.secAboutAdult")} items={["bio"]} doneIds={doneIds}>
+        {student && (
+          <Field label={t("me.nickname")}>
+            <input className="input" maxLength={24} value={p.nickname ?? ""} onChange={(e) => setP("nickname", e.target.value)} placeholder={t("me.nicknamePh")} />
+            <p className="mt-1.5 text-xs font-semibold text-ink-muted">{t("me.nicknameHint")}</p>
+          </Field>
+        )}
         <Field id="bio" label={t("me.bio")} done={doneIds.has("bio")}>
           <div className="relative">
             <textarea
@@ -355,7 +361,7 @@ export function ProfileEditor({ user, barClassName = "bottom-6" }: { user: User;
                     onClick={() => set("grade", g)}
                     className={clsx("h-11 rounded-xl border-2 font-display text-lg font-extrabold transition-colors", draft.grade === g ? "border-brand-500 bg-brand-500 text-white" : "border-line bg-white text-ink-soft hover:border-brand-200")}
                   >
-                    {n(g)}
+                    {classNo(g)}
                   </button>
                 ))}
               </div>

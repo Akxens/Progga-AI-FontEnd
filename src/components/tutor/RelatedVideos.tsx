@@ -58,6 +58,7 @@ export function VideoThumb({ v, size = "sm" }: { v: LessonCard; size?: "sm" | "l
 /** Right-panel card: big thumbnails of the lessons that explain what the student is stuck on. */
 export function RelatedVideosCard({ videos }: { videos: LessonCard[] }) {
   const { t } = useT();
+  const { classNo } = useFormat();
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card p-4">
       <p className="eyebrow">{t("session.videos")}</p>
@@ -67,7 +68,7 @@ export function RelatedVideosCard({ videos }: { videos: LessonCard[] }) {
           <Link key={v.id} href={`/lessons/${v.id}`} target="_blank" className="group block rounded-2xl p-1 transition-colors hover:bg-cream">
             <VideoThumb v={v} size="lg" />
             <span className="mt-2 block px-1 font-display text-sm font-bold leading-snug group-hover:text-brand-600">{v.title}</span>
-            <span className="block px-1 text-xs font-semibold text-ink-muted">{t("cards.lessonMeta", { n: v.grade, chapter: v.chapter })}</span>
+            <span className="block px-1 text-xs font-semibold text-ink-muted">{t("cards.lessonMeta", { n: classNo(v.grade), chapter: v.chapter })}</span>
           </Link>
         ))}
       </div>

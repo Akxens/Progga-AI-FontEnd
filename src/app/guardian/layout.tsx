@@ -28,7 +28,7 @@ export default function GuardianLayout({ children }: { children: React.ReactNode
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-line bg-white/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="app-container flex items-center justify-between gap-3 py-3">
           <Link href="/guardian" className="flex items-center gap-3">
             <Logo size={34} />
             <span className="hidden rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-brand-600 md:inline">
@@ -48,7 +48,7 @@ export default function GuardianLayout({ children }: { children: React.ReactNode
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
+      <main className="app-container py-8">{children}</main>
     </div>
   );
 }

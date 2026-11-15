@@ -10,7 +10,7 @@ import { ProggaBot } from "@/components/brand/ProggaBot";
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { useChatLayout } from "@/components/chat/ChatShell";
 import { ErrorNote, Spinner } from "@/components/ui/primitives";
-import { useT, type TKey } from "@/i18n";
+import { useFormat, useT, type TKey } from "@/i18n";
 import { ChatMessage } from "@/components/tutor/ChatMessage";
 import { apiStream, errorMessage } from "@/lib/api";
 import { GRADES } from "@/lib/format";
@@ -32,6 +32,7 @@ export default function StartLesson() {
   const router = useRouter();
   const { user, refreshHistory } = useChatLayout();
   const { t, n, ui } = useT();
+  const { gradeLabel, classNo } = useFormat();
   const { mutate } = useSWRConfig();
   const [grade, setGrade] = useState(Math.min(10, Math.max(3, user.grade ?? 6)));
   const [subject, setSubject] = useState<string | null>(null);
@@ -167,7 +168,7 @@ export default function StartLesson() {
                   )}
                   aria-pressed={g === grade}
                 >
-                  {n(g)}
+                  {classNo(g)}
                 </button>
               ))}
             </div>
@@ -287,7 +288,7 @@ export default function StartLesson() {
             {chosen && subjectInfo ? (
               <>
                 <span className="font-bold text-ink-muted">
-                  {t("common.classN", { n: grade })} · {subjectInfo.icon} {ui === "bn" ? subjectInfo.nameBn : subjectInfo.name} ·{" "}
+                  {gradeLabel(grade)} · {subjectInfo.icon} {ui === "bn" ? subjectInfo.nameBn : subjectInfo.name} ·{" "}
                 </span>
                 <span className="font-extrabold text-ink">{chosen.topic}</span>
               </>

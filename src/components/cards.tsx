@@ -53,7 +53,7 @@ export function QuestRow({ quest, onClaimed }: { quest: Quest; onClaimed?: () =>
 
 export function LessonTile({ lesson }: { lesson: LessonCard }) {
   const { t, n } = useT();
-  const { duration } = useFormat();
+  const { duration, classNo } = useFormat();
   return (
     <Link href={`/lessons/${lesson.id}`} className="card group overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lift">
       <div className="relative aspect-video overflow-hidden" style={{ background: `linear-gradient(135deg, ${lesson.subject.color}, ${lesson.subject.color}aa)` }}>
@@ -82,7 +82,7 @@ export function LessonTile({ lesson }: { lesson: LessonCard }) {
         )}
       </div>
       <div className="p-4">
-        <p className="text-xs font-extrabold uppercase tracking-wider text-ink-muted">{t("cards.lessonMeta", { n: lesson.grade, chapter: lesson.chapter })}</p>
+        <p className="text-xs font-extrabold uppercase tracking-wider text-ink-muted">{t("cards.lessonMeta", { n: classNo(lesson.grade), chapter: lesson.chapter })}</p>
         <h3 className="mt-1 line-clamp-2 font-display text-lg font-bold leading-snug">{lesson.title}</h3>
         <div className="mt-3 flex items-center gap-2">
           {lesson.progress !== undefined && lesson.progress > 0 && !lesson.completed ? (

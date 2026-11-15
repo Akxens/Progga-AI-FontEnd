@@ -9,7 +9,7 @@ import { ProggaBot } from "@/components/brand/ProggaBot";
 import { VideoThumb } from "@/components/tutor/RelatedVideos";
 import { Loader2, Volume2 } from "lucide-react";
 import { SoundBars } from "@/components/chat/VoiceControls";
-import { useT, type TKey } from "@/i18n";
+import { useFormat, useT, type TKey } from "@/i18n";
 import type { Reaction } from "@/lib/reactions";
 import type { LessonCard, Palette, TutorMessage } from "@/lib/types";
 
@@ -65,6 +65,7 @@ function feedbackStyle(verdict: unknown): Style {
 /** Our recorded lessons on the topic, offered when Progga explains a step. */
 function VideoSuggestions({ videos }: { videos: LessonCard[] }) {
   const { t } = useT();
+  const { classNo } = useFormat();
   return (
     <div className="mt-3 border-t border-line pt-3">
       <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-coral-600">{t("chat.videos")}</p>
@@ -79,7 +80,7 @@ function VideoSuggestions({ videos }: { videos: LessonCard[] }) {
             <VideoThumb v={v} />
             <span className="min-w-0">
               <span className="line-clamp-2 font-display text-sm font-bold leading-snug">{v.title}</span>
-              <span className="mt-0.5 block truncate text-xs font-semibold text-ink-muted">{t("cards.lessonMeta", { n: v.grade, chapter: v.chapter })}</span>
+              <span className="mt-0.5 block truncate text-xs font-semibold text-ink-muted">{t("cards.lessonMeta", { n: classNo(v.grade), chapter: v.chapter })}</span>
               <span className="mt-0.5 block text-xs font-extrabold text-brand-500">▶ {t("chat.watch")}</span>
             </span>
           </Link>

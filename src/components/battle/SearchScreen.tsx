@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Users, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ProggaBot } from "@/components/brand/ProggaBot";
-import { useT } from "@/i18n";
+import { useFormat, useT } from "@/i18n";
 import { sfx } from "@/lib/battle";
 import type { Palette } from "@/lib/types";
 import { LeagueBadge, SwordsIcon, TrophyIcon } from "./art";
@@ -37,6 +37,7 @@ export function SearchScreen({
   onCancel: () => void;
 }) {
   const { t, n } = useT();
+  const { classNo } = useFormat();
   const [secs, setSecs] = useState(0);
   const [tip, setTip] = useState(0);
   const tips = [t("battle.tip1"), t("battle.tip2"), t("battle.tip3"), t("battle.tip4"), t("battle.tip5")];
@@ -124,7 +125,7 @@ export function SearchScreen({
           </span>
         </h1>
         <p className="mt-1 flex items-center gap-2 font-bold text-indigo-200">
-          <TrophyIcon size={18} /> {t("battle.searchingSub", { n: n(grade), t: n(trophies) })}
+          <TrophyIcon size={18} /> {t("battle.searchingSub", { n: classNo(grade), t: n(trophies) })}
         </p>
         <p className="mt-4 font-display text-5xl [@media(max-height:760px)]:mt-1 [@media(max-height:760px)]:text-4xl font-extrabold tabular-nums text-banana-300 drop-shadow-[0_3px_0_rgb(0_0_0_/_0.35)]">
           0:{String(secs).padStart(2, "0").replace(/\d/g, (d) => n(d))}

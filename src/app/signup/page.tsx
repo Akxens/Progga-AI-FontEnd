@@ -422,7 +422,8 @@ function RoleStep({ role, onPick }: { role: SignupRole | null; onPick: (r: Signu
 }
 
 function ClassStep({ grade, onPick }: { grade: number | null; onPick: (g: number) => void }) {
-  const { t, n } = useT();
+  const { t, ui } = useT();
+  const { classNo } = useFormat();
   const ssc = grade === 9 || grade === 10;
   const hsc = grade === 11 || grade === 12;
   return (
@@ -431,9 +432,16 @@ function ClassStep({ grade, onPick }: { grade: number | null; onPick: (g: number
       <div className="grid grid-cols-3 gap-3">
         {[3, 4, 5, 6, 7, 8].map((g, i) => (
           <Rise key={g} i={2 + i}>
-            <motion.button type="button" whileTap={{ scale: 0.96 }} onClick={() => onPick(g)} aria-pressed={grade === g} className={clsx("w-full rounded-2xl py-3.5 text-center", choice(grade === g))}>
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.96 }}
+              onClick={() => onPick(g)}
+              aria-pressed={grade === g}
+              // Bangla reads "৭ম শ্রেণি" (number first), English "Class 7"
+              className={clsx("flex w-full items-center rounded-2xl py-3.5 text-center", ui === "bn" ? "flex-col-reverse" : "flex-col", choice(grade === g))}
+            >
               <span className="block text-[11px] font-extrabold uppercase tracking-wider text-ink-muted">{t("onboard.classWord")}</span>
-              <span className={clsx("block font-display text-3xl font-extrabold leading-tight", grade === g && "text-brand-600")}>{n(g)}</span>
+              <span className={clsx("block font-display text-3xl font-extrabold leading-tight", grade === g && "text-brand-600")}>{classNo(g)}</span>
             </motion.button>
           </Rise>
         ))}
@@ -450,6 +458,7 @@ function ClassStep({ grade, onPick }: { grade: number | null; onPick: (g: number
 
 function YearPicker({ open, years, grade, onPick }: { open: boolean; years: number[]; grade: number | null; onPick: (g: number) => void }) {
   const { t } = useT();
+  const { classNo } = useFormat();
   return (
     <AnimatePresence initial={false}>
       {open && (
@@ -466,7 +475,7 @@ function YearPicker({ open, years, grade, onPick }: { open: boolean; years: numb
                   grade === y ? "border-brand-500 bg-brand-500 text-white" : "border-line bg-white text-ink-soft hover:border-brand-200",
                 )}
               >
-                {t("common.classN", { n: y })}
+                {t("common.classN", { n: classNo(y) })}
               </button>
             ))}
           </div>
@@ -477,7 +486,8 @@ function YearPicker({ open, years, grade, onPick }: { open: boolean; years: numb
 }
 
 function KidsStep({ kids, setKids }: { kids: Kid[]; setKids: React.Dispatch<React.SetStateAction<Kid[]>> }) {
-  const { t, n } = useT();
+  const { t } = useT();
+  const { classNo } = useFormat();
   const update = (key: number, patch: Partial<Kid>) => setKids((ks) => ks.map((k) => (k.key === key ? { ...k, ...patch } : k)));
   const add = () => setKids((ks) => [...ks, { key: Math.max(...ks.map((k) => k.key)) + 1, name: "", grade: null }]);
   const remove = (key: number) => setKids((ks) => ks.filter((k) => k.key !== key));
@@ -532,7 +542,7 @@ function KidsStep({ kids, setKids }: { kids: Kid[]; setKids: React.Dispatch<Reac
                       k.grade === g ? "border-brand-500 bg-brand-500 text-white" : "border-line bg-white text-ink-soft hover:border-brand-200",
                     )}
                   >
-                    {n(g)}
+                    {classNo(g)}
                   </button>
                 ))}
               </div>

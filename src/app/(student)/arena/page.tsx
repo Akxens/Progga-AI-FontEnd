@@ -104,7 +104,7 @@ export default function ArenaPage() {
 
       <section>
         <h2 className="mb-4 text-2xl font-extrabold">{t("arena.choose")}</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {subjects.subjects.map((s) => (
             <button
               key={s.id}
