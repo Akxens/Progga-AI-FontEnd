@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: { default: "Progga AI — the tutor that helps kids think", template: "%s · Progga AI" },
   description:
     "Progga is a safe AI tutor for students from Class 3 to SSC. Instead of handing out answers, it guides students step by step with questions, hints and the 'why' behind every move.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export const viewport: Viewport = { themeColor: "#2B7BE8" };
