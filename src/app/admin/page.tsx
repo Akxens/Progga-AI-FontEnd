@@ -14,6 +14,9 @@ type ProviderId = "openai" | "deepseek" | "anthropic" | "ollama" | "mock";
 
 interface ProviderInfo {
   id: ProviderId;
+  /** Progga's name for the engine, e.g. "Progga Nova" */
+  brand: string;
+  /** the vendor behind it, e.g. "OpenAI" */
   label: string;
   configured: boolean;
   vision: boolean;
@@ -124,7 +127,7 @@ export default function AiSettingsPage() {
         <div className="flex-1">
           <p className="text-xs font-extrabold uppercase tracking-wider text-banana-300">Live right now</p>
           <p className="mt-1 font-display text-3xl font-extrabold">
-            {activeProvider.label} · {active.model}
+            {activeProvider.brand} · {active.model}
           </p>
           <div className="mt-3 flex flex-wrap gap-2 text-sm font-bold">
             <span className="rounded-full bg-white/15 px-3 py-1">One model for planning, facts & checking answers</span>
@@ -153,7 +156,8 @@ export default function AiSettingsPage() {
               >
                 {active.provider === p.id && <span className="absolute right-3 top-3 rounded-full bg-mint-500 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">Live</span>}
                 <span className="text-2xl">{PROVIDER_STYLE[p.id].icon}</span>
-                <p className="mt-2 font-display text-lg font-extrabold leading-tight">{p.label}</p>
+                <p className="mt-2 font-display text-lg font-extrabold leading-tight">{p.brand}</p>
+                {p.brand !== p.label && <p className="text-xs font-bold text-ink-muted">{p.label}</p>}
                 <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-extrabold">
                   <span className={clsx("flex items-center gap-1 rounded-full px-2 py-0.5", p.configured ? "bg-mint-100 text-mint-700" : "bg-coral-100 text-coral-600")}>
                     <KeyRound size={11} /> {p.id === "mock" ? "No key needed" : p.id === "ollama" ? (p.configured ? "Runs locally" : "Not set up") : p.configured ? "Key found" : "No API key"}

@@ -42,7 +42,7 @@ export function EnginePicker({ disabled }: { disabled?: boolean }) {
       title={t("chatui.model")}
     >
       <Cpu size={15} className="shrink-0" />
-      <span className="max-w-[8rem] truncate">{current.model}</span>
+      <span className="max-w-[10rem] truncate">{current.label}</span>
       <ChevronDown size={14} />
       <select
         value={current.id}

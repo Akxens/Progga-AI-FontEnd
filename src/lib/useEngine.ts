@@ -27,7 +27,8 @@ export interface EngineChoice {
   isDefault: boolean;
 }
 
-const ENGINE_KEY = "progga.engine";
+// v2: earlier picks are dropped once so every student starts on the default (Progga Nova).
+const ENGINE_KEY = "progga.engine.v2";
 const ENGINE_EVENT = "progga:engine";
 
 /** The model this student picked (saved in this browser), sent with every tutor request. */
