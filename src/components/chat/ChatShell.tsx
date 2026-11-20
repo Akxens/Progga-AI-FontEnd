@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, Home, PanelLeftClose, PlayCircle, RotateCw, Search, SquarePen, Swords, Trash2, Trophy, X } from "lucide-react";
+import { Home, PanelLeftClose, PlayCircle, RotateCw, Search, SquarePen, Swords, Trash2, Trophy, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -171,9 +171,6 @@ const QUICK_LINKS: { href: string; label: TKey; icon: typeof Home }[] = [
   { href: "/rewards", label: "nav.rewards", icon: Trophy },
 ];
 
-const sessionIcon = (s: SessionSummary) =>
-  s.kind === "project" ? "🛠️" : s.kind === "lesson" ? "📘" : s.mode === "fact" ? "⚡" : s.mode === "concept" ? "🔭" : "🧩";
-
 /** One chat in the history list, with a delete button (asks first, inline). */
 function HistoryItem({ s, active }: { s: SessionSummary; active: boolean }) {
   const { t } = useT();
@@ -204,7 +201,7 @@ function HistoryItem({ s, active }: { s: SessionSummary; active: boolean }) {
 
   if (confirming) {
     return (
-      <li className="flex items-center gap-2 rounded-xl bg-coral-50 px-3 py-2 ring-1 ring-coral-100">
+      <li className="flex items-center gap-2 rounded-lg bg-coral-50 px-3 py-1.5 ring-1 ring-coral-100">
         <span className="min-w-0 flex-1 truncate text-sm font-bold text-coral-600">{t("chatui.deleteConfirm")}</span>
         <button onClick={remove} disabled={deleting} className="rounded-lg bg-coral-500 px-2.5 py-1 text-xs font-extrabold text-white hover:bg-coral-600 disabled:opacity-60">
           {deleting ? "…" : t("chatui.delete")}
@@ -220,26 +217,17 @@ function HistoryItem({ s, active }: { s: SessionSummary; active: boolean }) {
     <li className="group relative">
       <Link
         href={`/tutor/${s.id}`}
+        title={s.title}
         className={clsx(
-          "flex items-center gap-2.5 rounded-xl py-2 pl-3 pr-9 transition-colors",
-          active ? "bg-white shadow-soft ring-1 ring-brand-100" : "hover:bg-white/70",
+          "block truncate rounded-lg py-1.5 pl-3 pr-9 text-sm transition-colors",
+          active ? "bg-ink/[0.07] font-semibold text-ink" : "font-medium text-ink-soft hover:bg-ink/[0.04] hover:text-ink",
         )}
       >
-        <span className="text-base">{sessionIcon(s)}</span>
-        <span className="min-w-0 flex-1">
-          <span className={clsx("block truncate text-sm font-bold", active ? "text-brand-700" : "text-ink")}>{s.title}</span>
-          <span className="block truncate text-xs text-ink-muted">{s.topic || s.subject}</span>
-        </span>
-        <span
-          className={clsx(
-            "h-2 w-2 shrink-0 rounded-full transition-opacity group-hover:opacity-0",
-            s.mode === "fact" ? "bg-sky-400" : s.status === "solved" ? "bg-mint-500" : s.status === "active" ? "bg-banana-400" : "bg-line",
-          )}
-        />
+        {s.title}
       </Link>
       <button
         onClick={() => setConfirming(true)}
-        className="absolute right-1.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-ink-muted opacity-100 transition-opacity hover:bg-coral-50 hover:text-coral-600 focus:opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+        className="absolute right-1 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-ink-muted opacity-100 transition-opacity hover:bg-coral-50 hover:text-coral-600 focus:opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
         aria-label={t("chatui.deleteChat", { title: s.title })}
         title={t("chatui.delete")}
       >
@@ -267,32 +255,32 @@ function HistoryPanel({ onClose, closeIcon }: { onClose: () => void; closeIcon: 
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-4 pb-2 pt-4">
+      {/* phone drawer only: on desktop the app rail beside this panel already shows the logo */}
+      <div className="flex items-center px-4 pt-4 lg:hidden">
         <Link href="/home" aria-label={t("nav.home")}>
-          <Logo size={32} />
+          <Logo size={30} />
         </Link>
-        <button
-          onClick={onClose}
-          className="grid h-9 w-9 place-items-center rounded-xl text-ink-muted hover:bg-white hover:text-ink"
-          aria-label={closeIcon === "collapse" ? t("chatui.hideHistory") : t("chatui.closeMenu")}
-          title={closeIcon === "collapse" ? t("chatui.hideHistory") : t("chatui.closeMenu")}
-        >
-          {closeIcon === "collapse" ? <PanelLeftClose size={19} /> : <X size={19} />}
-        </button>
       </div>
 
-      <div className="space-y-2.5 px-3 pb-3">
-        <div className="grid grid-cols-[1fr_auto] gap-2">
-          <button onClick={() => router.push(`/tutor?new=${Date.now()}`)} className="btn-primary justify-start !rounded-2xl !py-2.5">
-            <SquarePen size={18} /> {t("chatui.newChat")}
-          </button>
-          <Link
-            href="/tutor/learn"
-            className={clsx("btn-ghost !rounded-2xl !px-3 !py-2.5", pathname === "/tutor/learn" && "!border-brand-300 !bg-brand-50")}
-            title={t("learn.title")}
+      <div className="space-y-2 px-3 pb-3 pt-3">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => router.push(`/tutor?new=${Date.now()}`)}
+            className="flex flex-1 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink transition-colors hover:bg-ink/[0.04]"
           >
-            <BookOpen size={18} className="text-brand-600" /> <span className="text-sm">{t("learn.short")}</span>
-          </Link>
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-500 text-white">
+              <SquarePen size={13} />
+            </span>
+            {t("chatui.newChat")}
+          </button>
+          <button
+            onClick={onClose}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-ink-muted hover:bg-ink/[0.04] hover:text-ink"
+            aria-label={closeIcon === "collapse" ? t("chatui.hideHistory") : t("chatui.closeMenu")}
+            title={closeIcon === "collapse" ? t("chatui.hideHistory") : t("chatui.closeMenu")}
+          >
+            {closeIcon === "collapse" ? <PanelLeftClose size={18} /> : <X size={18} />}
+          </button>
         </div>
         <label className="relative block">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
@@ -300,16 +288,16 @@ function HistoryPanel({ onClose, closeIcon }: { onClose: () => void; closeIcon: 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("chatui.search")}
-            className="w-full rounded-xl border border-line bg-white py-2 pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-ink-muted focus:border-brand-300"
+            className="w-full rounded-lg border border-transparent bg-ink/[0.04] py-2 pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-ink-muted focus:border-brand-300 focus:bg-white"
           />
         </label>
       </div>
 
-      <nav className="min-h-0 flex-1 space-y-4 overflow-y-auto px-2 pb-3">
+      <nav className="min-h-0 flex-1 space-y-5 overflow-y-auto px-2 pb-3">
         {!data && isLoading && (
           <div className="space-y-2 px-1 pt-1" aria-hidden="true">
             {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-11 animate-pulse rounded-xl bg-white/70" />
+              <div key={i} className="h-8 animate-pulse rounded-lg bg-ink/[0.04]" />
             ))}
           </div>
         )}
@@ -326,8 +314,8 @@ function HistoryPanel({ onClose, closeIcon }: { onClose: () => void; closeIcon: 
         )}
         {groups.map((g) => (
           <div key={g.key}>
-            <p className="px-3 pb-1 text-[11px] font-extrabold uppercase tracking-wider text-ink-muted">{t(g.key)}</p>
-            <ul className="space-y-0.5">
+            <p className="px-3 pb-1.5 text-xs font-semibold text-ink-muted">{t(g.key)}</p>
+            <ul className="space-y-px">
               {g.items.map((s) => (
                 <HistoryItem key={s.id} s={s} active={pathname === `/tutor/${s.id}`} />
               ))}
