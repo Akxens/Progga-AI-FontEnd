@@ -169,7 +169,7 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
       aria-label={collapsed ? t(label) : undefined}
       aria-current={active ? "page" : undefined}
       className={clsx(
-        "group relative flex items-center gap-3 rounded-2xl py-1.5 font-display text-[1.02rem] font-bold transition-colors",
+        "group relative flex items-center gap-3 rounded-2xl py-1.5 text-[15px] font-semibold transition-colors",
         collapsed ? "justify-center px-0" : "px-2.5",
         active ? "bg-brand-50 text-brand-600" : "text-ink-soft hover:bg-cream hover:text-ink",
       )}

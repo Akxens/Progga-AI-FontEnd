@@ -11,7 +11,7 @@ export function middleware(req: NextRequest) {
   if (PROTECTED.some((p) => pathname === p || pathname.startsWith(`${p}/`)) && !hasToken) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", pathname);
+    url.searchParams.set("next", pathname + req.nextUrl.search);
     return NextResponse.redirect(url);
   }
   if ((pathname === "/login" || pathname === "/signup") && hasToken) {

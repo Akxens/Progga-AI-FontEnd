@@ -219,7 +219,7 @@ function HistoryItem({ s, active }: { s: SessionSummary; active: boolean }) {
         href={`/tutor/${s.id}`}
         title={s.title}
         className={clsx(
-          "block truncate rounded-lg py-1.5 pl-3 pr-9 text-sm transition-colors",
+          "block truncate rounded-lg py-1.5 pl-3 pr-9 text-[15px] transition-colors",
           active ? "bg-ink/[0.07] font-semibold text-ink" : "font-medium text-ink-soft hover:bg-ink/[0.04] hover:text-ink",
         )}
       >

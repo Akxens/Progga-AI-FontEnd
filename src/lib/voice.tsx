@@ -135,7 +135,8 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
       setLoadingId(null);
       return;
     }
-    queue.current.forEach((q) => prefetch(q.url));
+    // get the next couple of clips ready so there's no gap (not the whole chat at once)
+    queue.current.slice(0, 2).forEach((q) => prefetch(q.url));
 
     const el = player();
     setSpeakingId(null);

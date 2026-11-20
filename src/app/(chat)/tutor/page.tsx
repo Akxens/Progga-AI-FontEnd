@@ -39,7 +39,7 @@ function NewChat() {
 
   // no subject picker: Progga works the subject out from the question (a lesson link can still pass one)
   const subject = params.get("subject") ?? "general";
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState(() => params.get("q") ?? ""); // a question typed on the landing page
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [sent, setSent] = useState<{ text: string; photo: string | null } | null>(null);
@@ -54,7 +54,7 @@ function NewChat() {
   const fresh = params.get("new");
   useEffect(() => {
     setSent(null);
-    setQuestion("");
+    setQuestion(params.get("q") ?? "");
     setImage(null);
     setPreview(null);
     setBlocked(null);
@@ -107,14 +107,24 @@ function NewChat() {
     }
   }
 
-  const examples = ((ui === "bn" ? EXAMPLES_BN : EXAMPLES)[subject] ?? (ui === "bn" ? EXAMPLES_BN : EXAMPLES).general).slice(0, 4);
-  // real example questions "typed" into the empty box, one every ~5s, taking turns across subjects
+  // real example questions, taking turns across subjects
   const typingExamples = useMemo(() => {
     const lists = Object.values(ui === "bn" ? EXAMPLES_BN : EXAMPLES);
     const out: string[] = [];
     for (let i = 0; i < Math.max(...lists.map((l) => l.length)); i++) for (const l of lists) if (l[i] && !out.includes(l[i])) out.push(l[i]);
     return out;
   }, [ui]);
+  // "Try one of these": a fresh set of four every 10s (a subject link keeps to its subject)
+  const subjectExamples = subject !== "general" ? (ui === "bn" ? EXAMPLES_BN : EXAMPLES)[subject] : undefined;
+  const pool = subjectExamples ?? typingExamples;
+  const [round, setRound] = useState(0);
+  const [hoverSuggestions, setHoverSuggestions] = useState(false);
+  useEffect(() => {
+    if (pool.length <= 4 || sent || hoverSuggestions) return; // don't swap a card out from under the pointer
+    const timer = setInterval(() => setRound((r) => r + 1), 10_000);
+    return () => clearInterval(timer);
+  }, [pool.length, sent, hoverSuggestions]);
+  const examples = Array.from({ length: Math.min(4, pool.length) }, (_, i) => pool[(round * 4 + i) % pool.length]);
   const typed = useTypingPlaceholder(typingExamples, !!question || busy);
   const mood: BotMood = busy ? "thinking" : blocked ? "oops" : question ? "asking" : "idle";
   const palette = user.skin?.palette ?? paletteFor(user.avatarSkin);
@@ -130,24 +140,9 @@ function NewChat() {
             <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">{t("ask.title")}</h1>
             <p className="mt-2 max-w-xl text-ink-soft">{t("ask.body")}</p>
 
-            <div className="mt-6 grid w-full gap-3 sm:grid-cols-2">
-              {[
-                ["🧩", "chatui.stepMode", "chatui.stepModeText", "bg-brand-50 text-brand-700"],
-                ["⚡", "chatui.factMode", "chatui.factModeText", "bg-sky-50 text-sky-600"],
-              ].map(([icon, title, text, tint]) => (
-                <div key={title} className="flex items-start gap-3 rounded-2xl border border-line bg-cream/60 p-3.5 text-left">
-                  <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xl ${tint}`}>{icon}</span>
-                  <span>
-                    <span className="block font-display font-extrabold">{t(title as TKey)}</span>
-                    <span className="block text-sm text-ink-soft">{t(text as TKey)}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-
             <Link
               href="/tutor/learn"
-              className="group mt-3 flex w-full items-center gap-3 rounded-2xl border-2 border-brand-200 bg-gradient-to-r from-brand-50 to-white p-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-brand-300"
+              className="group mt-6 flex w-full items-center gap-3 rounded-2xl border-2 border-brand-200 bg-gradient-to-r from-brand-50 to-white p-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-brand-300"
             >
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-500 text-white">
                 <BookOpen size={20} />
@@ -160,16 +155,19 @@ function NewChat() {
             </Link>
 
             <p className="mb-2 mt-7 self-start text-xs font-extrabold uppercase tracking-wider text-ink-muted">{t("chatui.suggestions")}</p>
-            <div className="grid w-full gap-2.5 sm:grid-cols-2">
-              {examples.map((ex) => (
-                <button
-                  key={ex}
+            <div className="grid w-full gap-2.5 sm:grid-cols-2" onMouseEnter={() => setHoverSuggestions(true)} onMouseLeave={() => setHoverSuggestions(false)}>
+              {examples.map((ex, i) => (
+                <motion.button
+                  key={`${round}-${i}`}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: i * 0.06, ease: "easeOut" }}
                   onClick={() => submit(ex)}
-                  className="group flex items-center justify-between gap-3 rounded-2xl border border-line bg-white px-4 py-3 text-left text-[15px] font-semibold shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-200"
+                  className="group flex items-center justify-between gap-3 rounded-2xl border border-line bg-white px-4 py-3 text-left text-[15px] font-medium shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-200"
                 >
                   <span>{ex}</span>
                   <ArrowUpRight size={17} className="shrink-0 text-ink-muted transition-colors group-hover:text-brand-500" />
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>

@@ -1,61 +1,72 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { ArrowRight, ArrowUp, Camera, Check, MessageCircleQuestion, PlayCircle, ShieldCheck, Swords, Users } from "lucide-react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Camera,
-  Check,
-  Crown,
-  Flame,
-  HeartHandshake,
-  Lightbulb,
-  MessageCircleQuestion,
-  PlayCircle,
-  ShieldCheck,
-  Swords,
-  Users,
-  X,
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { ProggaBot } from "@/components/brand/ProggaBot";
-import { AppDownload } from "@/components/landing/AppDownload";
-import { HeroScene } from "@/components/landing/HeroScene";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useT, type TKey } from "@/i18n";
+import { EXAMPLES, EXAMPLES_BN } from "@/lib/tutor";
+import { useTypingPlaceholder } from "@/lib/useTypingPlaceholder";
 
+/** Public landing page: quiet and minimal, built around one "ask anything" box. */
 export default function Landing() {
   return (
-    <div className="overflow-x-hidden">
+    <div className="relative min-h-dvh overflow-x-hidden bg-white text-ink">
+      <Aurora />
       <Nav />
       <Hero />
-      <Compare />
       <HowItWorks />
       <Features />
-      <Levels />
       <Safety />
-      <ParentsCta />
-      <AppDownload />
+      <FinalCta />
       <Footer />
+    </div>
+  );
+}
+
+/** Soft blue lights drifting slowly behind the top of the page, fading into white below. */
+function Aurora() {
+  return (
+    <div aria-hidden className="aurora pointer-events-none absolute inset-x-0 top-0 h-[calc(100dvh+6rem)] overflow-hidden">
+      <span className="aurora-ribbon" />
+      <span className="aurora-light aurora-a" />
+      <span className="aurora-light aurora-b" />
+      <span className="aurora-light aurora-c" />
+      <span className="aurora-light aurora-d" />
+      <span className="aurora-light aurora-e" />
+      <span className="aurora-sweep" />
+      <span className="aurora-grid" />
     </div>
   );
 }
 
 function Nav() {
   const { t } = useT();
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   return (
-    <header className="sticky top-0 z-40 border-b border-line/60 bg-cream/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
-        <Logo size={36} />
-        <nav className="hidden items-center gap-7 font-display font-bold text-ink-soft lg:flex">
-          <a href="#how" className="hover:text-brand-600">{t("landing.navHow")}</a>
-          <a href="#features" className="hover:text-brand-600">{t("landing.navFeatures")}</a>
-          <a href="#safety" className="hover:text-brand-600">{t("landing.navSafety")}</a>
-          <a href="#parents" className="hover:text-brand-600">{t("landing.navParents")}</a>
-        </nav>
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher />
-          <Link href="/login" className="btn-ghost btn-sm hidden sm:inline-flex">{t("landing.login")}</Link>
-          <Link href="/signup" className="btn-primary btn-sm">{t("landing.start")}</Link>
+    <header className={`sticky top-0 z-40 transition-colors ${scrolled ? "border-b border-line bg-white/85 backdrop-blur" : "border-b border-transparent bg-transparent"}`}>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <Link href="/" aria-label="Progga AI">
+          <Logo size={32} />
+        </Link>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <LanguageSwitcher compact />
+          <Link href="/login" className="hidden rounded-full px-4 py-2 text-[15px] font-semibold text-ink-soft transition-colors hover:bg-ink/[0.04] hover:text-ink sm:inline-flex">
+            {t("landing.login")}
+          </Link>
+          <Link href="/signup" className="rounded-full bg-ink px-4 py-2 text-[15px] font-semibold text-white transition-opacity hover:opacity-85">
+            {t("landing.start")}
+          </Link>
         </div>
       </div>
     </header>
@@ -63,125 +74,127 @@ function Nav() {
 }
 
 function Hero() {
-  const { t } = useT();
+  const { t, ui } = useT();
+  const router = useRouter();
+  const [question, setQuestion] = useState("");
+
+  // real example questions, taking turns across subjects
+  const examples = useMemo(() => {
+    const lists = Object.values(ui === "bn" ? EXAMPLES_BN : EXAMPLES);
+    const out: string[] = [];
+    for (let i = 0; i < Math.max(...lists.map((l) => l.length)); i++) for (const l of lists) if (l[i] && !out.includes(l[i])) out.push(l[i]);
+    return out;
+  }, [ui]);
+  const typed = useTypingPlaceholder(examples, !!question);
+  const [round, setRound] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setRound((r) => r + 1), 10_000);
+    return () => clearInterval(timer);
+  }, []);
+  const chips = Array.from({ length: 3 }, (_, i) => examples[(round * 3 + i) % examples.length]);
+
+  // the question rides along to Ask Progga (through sign-in if needed) and waits in the box there
+  const ask = (q: string) => {
+    const text = q.trim();
+    router.push(text ? `/tutor?q=${encodeURIComponent(text)}` : "/tutor");
+  };
+
   return (
-    <section className="relative">
-      <div className="bg-dots absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-      <div className="absolute -right-32 -top-32 -z-10 h-[520px] w-[520px] rounded-full bg-banana-200/50 blur-3xl" />
-      <div className="absolute -left-40 top-40 -z-10 h-[420px] w-[420px] rounded-full bg-brand-200/40 blur-3xl" />
+    <section className="relative mx-auto flex min-h-[calc(100dvh-4rem)] max-w-3xl flex-col items-center justify-center px-4 pb-16 pt-10 text-center sm:px-6">
+      <ProggaBot size={76} mood="happy" />
+      <h1 className="mt-5 text-balance font-display text-4xl font-extrabold leading-[1.12] tracking-tight sm:text-5xl lg:text-[3.5rem]">
+        {t("landing.titleA")} <span className="text-shimmer">{t("landing.think")}</span>
+        {t("landing.titleB")}
+      </h1>
+      <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">{t("landing.heroBody")}</p>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 pb-20 pt-14 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:pt-20">
-        <div className="min-w-0">
-          <span className="chip border-brand-100 bg-white text-brand-600">
-            <span className="h-2 w-2 rounded-full bg-mint-500" /> {t("landing.chip")}
-          </span>
-          <h1 className="mt-5 text-5xl font-extrabold leading-[1.08] sm:text-6xl lg:text-[4.2rem]">
-            {t("landing.titleA")}{" "}
-            <span className="relative inline-block text-brand-500">
-              {t("landing.think")}
-              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden>
-                <path d="M3 10 Q100 -2 197 9" stroke="#FFD43B" strokeWidth="8" strokeLinecap="round" fill="none" />
-              </svg>
-            </span>
-            {t("landing.titleB")}
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">{t("landing.body")}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/signup" className="btn-primary text-lg">
-              {t("landing.cta")} <ArrowRight size={20} />
-            </Link>
-            <Link href="/signup?role=PARENT" className="btn-ghost text-lg">{t("landing.ctaParent")}</Link>
-          </div>
-          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold text-ink-soft">
-            {(["landing.trust1", "landing.trust2", "landing.trust3"] as const).map((k) => (
-              <li key={k} className="flex items-center gap-1.5">
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-mint-100 text-mint-600"><Check size={13} strokeWidth={3} /></span>
-                {t(k)}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          ask(question);
+        }}
+        className="mt-9 flex w-full items-end gap-2 rounded-[28px] border border-line bg-white p-2 pl-5 shadow-[0_6px_30px_-12px_rgba(16,24,40,0.18)] transition-shadow focus-within:border-ink/20 focus-within:shadow-[0_10px_40px_-12px_rgba(16,24,40,0.25)]"
+      >
+        <textarea
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+              e.preventDefault();
+              ask(question);
+            }
+          }}
+          rows={1}
+          maxLength={2000}
+          placeholder={question ? "" : `${typed}|`}
+          aria-label={t("landing.askLabel")}
+          className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-left text-[16px] leading-relaxed outline-none placeholder:text-ink-muted"
+        />
+        <button
+          type="submit"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink text-white transition-opacity hover:opacity-85 disabled:opacity-30"
+          disabled={!question.trim()}
+          aria-label={t("landing.askSend")}
+        >
+          <ArrowUp size={20} strokeWidth={2.4} />
+        </button>
+      </form>
 
-        <HeroScene />
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {chips.map((c, i) => (
+          <motion.button
+            key={`${round}-${i}`}
+            type="button"
+            onClick={() => ask(c)}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: i * 0.06 }}
+            className="max-w-full truncate rounded-full border border-line px-3.5 py-1.5 text-sm font-medium text-ink-soft transition-colors hover:border-ink/20 hover:text-ink"
+          >
+            {c}
+          </motion.button>
+        ))}
       </div>
+
+      <p className="mt-8 text-sm text-ink-muted">
+        {t("landing.trust1")} · {t("landing.trust2")} · {t("landing.trust3")}
+      </p>
     </section>
   );
 }
 
-function Compare() {
+function SectionHead({ eyebrow, title, body }: { eyebrow: TKey; title: TKey; body?: TKey }) {
   const { t } = useT();
   return (
-    <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="eyebrow">{t("landing.compareEyebrow")}</p>
-        <h2 className="mt-2 text-4xl font-extrabold sm:text-5xl">{t("landing.compareTitle")}</h2>
-        <p className="mt-4 text-lg text-ink-soft">{t("landing.compareBody")}</p>
-      </div>
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
-        <div className="card p-7 opacity-90">
-          <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-coral-100 text-coral-600"><X strokeWidth={3} size={20} /></span>
-            <h3 className="text-2xl font-extrabold">{t("landing.otherTitle")}</h3>
-          </div>
-          <div className="mt-5 rounded-2xl bg-cream p-4 font-mono text-sm text-ink-soft">
-            3x + 5 = 20<br />3x = 15<br />x = 5 ✅ <span className="text-ink-muted">{t("landing.otherCopied")}</span>
-          </div>
-          <ul className="mt-5 space-y-2.5 text-ink-soft">
-            {(["landing.other1", "landing.other2", "landing.other3"] as const).map((k) => (
-              <li key={k} className="flex gap-2"><X size={18} className="mt-0.5 shrink-0 text-coral-500" />{t(k)}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="card relative overflow-hidden border-2 border-brand-200 p-7">
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-banana-200/60 blur-2xl" />
-          <div className="relative flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-mint-100 text-mint-600"><Check strokeWidth={3} size={20} /></span>
-            <h3 className="text-2xl font-extrabold">{t("landing.proggaTitle")}</h3>
-          </div>
-          <ol className="relative mt-5 space-y-2 text-sm">
-            {(["landing.step1", "landing.step2", "landing.step3"] as const).map((k, i) => (
-              <li key={k} className="flex items-center gap-3 rounded-2xl bg-brand-50 px-3.5 py-2.5 font-semibold">
-                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-500 text-xs font-extrabold text-white">{i + 1}</span>
-                {t(k)}
-              </li>
-            ))}
-          </ol>
-          <ul className="relative mt-5 space-y-2.5 text-ink-soft">
-            {(["landing.progga1", "landing.progga2", "landing.progga3"] as const).map((k) => (
-              <li key={k} className="flex gap-2"><Check size={18} className="mt-0.5 shrink-0 text-mint-500" />{t(k)}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </section>
+    <div className="mx-auto max-w-2xl text-center">
+      <p className="text-sm font-semibold text-brand-600">{t(eyebrow)}</p>
+      <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t(title)}</h2>
+      {body && <p className="mt-3 text-lg text-ink-soft">{t(body)}</p>}
+    </div>
   );
 }
 
 function HowItWorks() {
   const { t } = useT();
-  const steps: { icon: typeof Lightbulb; title: TKey; text: TKey; color: string }[] = [
-    { icon: MessageCircleQuestion, title: "landing.how1t", text: "landing.how1d", color: "bg-brand-500" },
-    { icon: Lightbulb, title: "landing.how2t", text: "landing.how2d", color: "bg-banana-500" },
-    { icon: HeartHandshake, title: "landing.how3t", text: "landing.how3d", color: "bg-mint-500" },
-    { icon: Crown, title: "landing.how4t", text: "landing.how4d", color: "bg-coral-500" },
+  const steps: [TKey, TKey][] = [
+    ["landing.how1t", "landing.how1d"],
+    ["landing.how2t", "landing.how2d"],
+    ["landing.how3t", "landing.how3d"],
+    ["landing.how4t", "landing.how4d"],
   ];
   return (
-    <section id="how" className="bg-white py-20">
+    <section id="how" className="border-t border-line py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="max-w-2xl">
-          <p className="eyebrow">{t("landing.howEyebrow")}</p>
-          <h2 className="mt-2 text-4xl font-extrabold sm:text-5xl">{t("landing.howTitle")}</h2>
-        </div>
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((s, i) => (
-            <div key={s.title} className="relative rounded-3xl border border-line bg-cream p-6">
-              <span className="absolute right-5 top-4 font-display text-5xl font-extrabold text-ink/5">{i + 1}</span>
-              <span className={`grid h-12 w-12 place-items-center rounded-2xl text-white ${s.color}`}><s.icon size={24} /></span>
-              <h3 className="mt-5 text-xl font-extrabold">{t(s.title)}</h3>
-              <p className="mt-2 text-ink-soft">{t(s.text)}</p>
-            </div>
+        <SectionHead eyebrow="landing.howEyebrow" title="landing.compareTitle" body="landing.compareBody" />
+        <ol className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map(([title, text], i) => (
+            <li key={title}>
+              <span className="font-display text-sm font-bold text-ink-muted">0{i + 1}</span>
+              <h3 className="mt-2 text-lg font-bold">{t(title)}</h3>
+              <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{t(text)}</p>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );
@@ -189,60 +202,24 @@ function HowItWorks() {
 
 function Features() {
   const { t } = useT();
-  const features: { icon: typeof Camera; title: TKey; text: TKey; tint: string }[] = [
-    { icon: MessageCircleQuestion, title: "landing.f1t", text: "landing.f1d", tint: "bg-brand-50 text-brand-600" },
-    { icon: Camera, title: "landing.f2t", text: "landing.f2d", tint: "bg-sky-50 text-sky-600" },
-    { icon: PlayCircle, title: "landing.f3t", text: "landing.f3d", tint: "bg-coral-50 text-coral-600" },
-    { icon: Swords, title: "landing.f4t", text: "landing.f4d", tint: "bg-banana-50 text-banana-700" },
-    { icon: Flame, title: "landing.f5t", text: "landing.f5d", tint: "bg-coral-50 text-coral-600" },
-    { icon: Crown, title: "landing.f6t", text: "landing.f6d", tint: "bg-mint-50 text-mint-600" },
-    { icon: Users, title: "landing.f7t", text: "landing.f7d", tint: "bg-brand-50 text-brand-600" },
-    { icon: ShieldCheck, title: "landing.f8t", text: "landing.f8d", tint: "bg-mint-50 text-mint-600" },
+  const features: { icon: typeof Camera; title: TKey; text: TKey }[] = [
+    { icon: MessageCircleQuestion, title: "landing.f1t", text: "landing.f1d" },
+    { icon: Camera, title: "landing.f2t", text: "landing.f2d" },
+    { icon: PlayCircle, title: "landing.f3t", text: "landing.f3d" },
+    { icon: Swords, title: "landing.f4t", text: "landing.f4d" },
+    { icon: Users, title: "landing.f7t", text: "landing.f7d" },
+    { icon: ShieldCheck, title: "landing.f8t", text: "landing.f8d" },
   ];
   return (
-    <section id="features" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="eyebrow">{t("landing.featEyebrow")}</p>
-        <h2 className="mt-2 text-4xl font-extrabold sm:text-5xl">{t("landing.featTitle")}</h2>
-      </div>
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {features.map((f) => (
-          <div key={f.title} className="card p-6 transition-transform hover:-translate-y-1">
-            <span className={`grid h-12 w-12 place-items-center rounded-2xl ${f.tint}`}><f.icon size={24} /></span>
-            <h3 className="mt-4 text-lg font-extrabold">{t(f.title)}</h3>
-            <p className="mt-1.5 text-[15px] text-ink-soft">{t(f.text)}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function Levels() {
-  const { t } = useT();
-  const bands = [
-    { range: "landing.band1Range", name: "landing.band1Name", text: "landing.band1Text", color: "from-banana-300 to-banana-500", mood: "happy" as const },
-    { range: "landing.band2Range", name: "landing.band2Name", text: "landing.band2Text", color: "from-mint-400 to-mint-600", mood: "talking" as const },
-    { range: "landing.band3Range", name: "landing.band3Name", text: "landing.band3Text", color: "from-brand-400 to-brand-700", mood: "thinking" as const },
-  ] satisfies { range: TKey; name: TKey; text: TKey; color: string; mood: string }[];
-  return (
-    <section className="bg-white py-20">
+    <section id="features" className="bg-cream/50 py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="max-w-2xl">
-          <p className="eyebrow">{t("landing.levelsEyebrow")}</p>
-          <h2 className="mt-2 text-4xl font-extrabold sm:text-5xl">{t("landing.levelsTitle")}</h2>
-          <p className="mt-4 text-lg text-ink-soft">{t("landing.levelsBody")}</p>
-        </div>
-        <div className="mt-12 grid gap-5 sm:grid-cols-3">
-          {bands.map((b) => (
-            <div key={b.name} className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${b.color} p-6 text-white`}>
-              <p className="text-sm font-extrabold uppercase tracking-wider opacity-80">{t(b.range)}</p>
-              <h3 className="mt-1 text-2xl font-extrabold">{t(b.name)}</h3>
-              <p className="mt-2 max-w-[13rem] text-white/90">{t(b.text)}</p>
-              <div className="pointer-events-none absolute -bottom-4 -right-3 opacity-95">
-                <ProggaBot size={90} mood={b.mood} float={false} />
-              </div>
-              <div className="h-16" />
+        <SectionHead eyebrow="landing.featEyebrow" title="landing.featTitle" body="landing.levelsBody" />
+        <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f) => (
+            <div key={f.title}>
+              <f.icon size={22} className="text-ink" strokeWidth={1.8} />
+              <h3 className="mt-3 text-lg font-bold">{t(f.title)}</h3>
+              <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">{t(f.text)}</p>
             </div>
           ))}
         </div>
@@ -256,55 +233,47 @@ function Safety() {
   const items: [TKey, TKey][] = [
     ["landing.s1t", "landing.s1d"],
     ["landing.s2t", "landing.s2d"],
-    ["landing.s3t", "landing.s3d"],
     ["landing.s4t", "landing.s4d"],
-    ["landing.s5t", "landing.s5d"],
     ["landing.s6t", "landing.s6d"],
   ];
   return (
-    <section id="safety" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-      <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.3fr]">
+    <section id="safety" className="py-24">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.4fr]">
         <div>
-          <p className="eyebrow">{t("landing.safetyEyebrow")}</p>
-          <h2 className="mt-2 text-4xl font-extrabold sm:text-5xl">{t("landing.safetyTitle")}</h2>
-          <p className="mt-4 text-lg text-ink-soft">{t("landing.safetyBody")}</p>
-          <div className="mt-6 inline-flex items-center gap-3 rounded-3xl bg-mint-50 px-5 py-4">
-            <ShieldCheck className="text-mint-600" size={28} />
-            <span className="font-display text-lg font-bold text-mint-700">{t("landing.safetyBadge")}</span>
-          </div>
+          <p className="text-sm font-semibold text-brand-600">{t("landing.safetyEyebrow")}</p>
+          <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t("landing.safetyTitle")}</h2>
+          <p className="mt-3 text-lg text-ink-soft">{t("landing.safetyBody")}</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {items.map(([title, desc]) => (
-            <div key={title} className="card p-5">
-              <p className="flex items-center gap-2 font-display text-lg font-extrabold"><Check size={18} className="shrink-0 text-mint-500" strokeWidth={3} />{t(title)}</p>
-              <p className="mt-1.5 text-[15px] text-ink-soft">{t(desc)}</p>
-            </div>
+        <ul className="divide-y divide-line border-y border-line">
+          {items.map(([title, text]) => (
+            <li key={title} className="flex gap-3 py-5">
+              <Check size={18} strokeWidth={2.5} className="mt-1 shrink-0 text-mint-600" />
+              <div>
+                <p className="font-bold">{t(title)}</p>
+                <p className="mt-1 text-[15px] leading-relaxed text-ink-soft">{t(text)}</p>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );
 }
 
-function ParentsCta() {
+function FinalCta() {
   const { t } = useT();
   return (
-    <section id="parents" className="px-4 pb-20 sm:px-6">
-      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-brand-600 via-brand-500 to-brand-700 px-8 py-14 text-white sm:px-14">
-        <div className="bg-dots absolute inset-0 opacity-30" />
-        <div className="relative grid items-center gap-10 lg:grid-cols-[1.4fr_1fr]">
-          <div>
-            <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-banana-300">{t("landing.parentsEyebrow")}</p>
-            <h2 className="mt-2 text-4xl font-extrabold sm:text-5xl">{t("landing.parentsTitle")}</h2>
-            <p className="mt-4 max-w-xl text-lg text-brand-100">{t("landing.parentsBody")}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/signup?role=PARENT" className="btn-banana text-lg">{t("landing.parentsCta")}</Link>
-              <Link href="/signup?role=TEACHER" className="btn bg-white/15 text-white hover:bg-white/25">{t("landing.parentsTeacher")}</Link>
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <ProggaBot size={210} mood="happy" />
-          </div>
+    <section id="parents" className="border-t border-line py-24">
+      <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
+        <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t("landing.parentsTitle")}</h2>
+        <p className="mt-3 text-lg text-ink-soft">{t("landing.parentsBody")}</p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-semibold text-white transition-opacity hover:opacity-85">
+            {t("landing.cta")} <ArrowRight size={18} />
+          </Link>
+          <Link href="/signup?role=PARENT" className="inline-flex items-center rounded-full border border-line px-6 py-3 font-semibold text-ink transition-colors hover:border-ink/25">
+            {t("landing.ctaParent")}
+          </Link>
         </div>
       </div>
     </section>
@@ -314,10 +283,18 @@ function ParentsCta() {
 function Footer() {
   const { t } = useT();
   return (
-    <footer className="border-t border-line bg-white">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6">
-        <Logo size={30} />
-        <p className="text-sm text-ink-muted">© {new Date().getFullYear()} Progga AI · {t("landing.footer")}</p>
+    <footer className="border-t border-line">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-ink-muted sm:flex-row sm:px-6">
+        <div className="flex items-center gap-3">
+          <Logo size={26} />
+          <span>© {new Date().getFullYear()} · {t("landing.footer")}</span>
+        </div>
+        <nav className="flex gap-5">
+          <a href="#how" className="hover:text-ink">{t("landing.navHow")}</a>
+          <a href="#features" className="hover:text-ink">{t("landing.navFeatures")}</a>
+          <a href="#safety" className="hover:text-ink">{t("landing.navSafety")}</a>
+          <Link href="/login" className="hover:text-ink">{t("landing.login")}</Link>
+        </nav>
       </div>
     </footer>
   );

@@ -255,7 +255,14 @@ export default function TutorSessionPage({ params }: { params: Promise<{ id: str
       ? {
           speaking: voice.speakingId === m.id,
           loading: voice.loadingId === m.id,
-          onToggle: () => (voice.speakingId === m.id || voice.loadingId === m.id ? voice.stop() : voice.speak(session.id, [m.id])),
+          // read from this paragraph on: when it ends, Progga carries on with everything it said after it
+          onToggle: () =>
+            voice.speakingId === m.id || voice.loadingId === m.id
+              ? voice.stop()
+              : voice.speak(
+                  session.id,
+                  session.messages.slice(session.messages.findIndex((x) => x.id === m.id)).filter((x) => x.role === "tutor").map((x) => x.id),
+                ),
         }
       : undefined;
 

@@ -16,7 +16,7 @@ const DEMO: { label: TKey; email: string }[] = [
   { label: "auth.demoStudent", email: "rafi@demo.progga.ai" },
   { label: "auth.demoParent", email: "parent@demo.progga.ai" },
   { label: "auth.demoTeacher", email: "teacher@demo.progga.ai" },
-  { label: "auth.demoAdmin", email: "admin@demo.progga.ai" },
+  // no one-click admin login: admins sign in with their own email and password
 ];
 const DEMO_PASSWORD = "Progga@123";
 
@@ -43,7 +43,7 @@ function LoginForm() {
       }
       await mutate("/auth/me", { user }, { revalidate: false });
       const next = params.get("next");
-      router.replace(next ?? homeFor(user.role));
+      router.replace(next && next.startsWith("/") && !next.startsWith("//") ? next : homeFor(user.role)); // only paths on this site
     } catch (err) {
       setError(errorMessage(err));
       setBusy(false);
