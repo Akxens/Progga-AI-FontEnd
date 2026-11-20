@@ -22,7 +22,14 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { themeColor: "#2B7BE8" };
+export const viewport: Viewport = {
+  themeColor: "#2B7BE8",
+  width: "device-width",
+  initialScale: 1,
+  // let content reach the notch/home-bar edges (safe-area paddings keep it clear) and shrink the page when the keyboard opens
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+};
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Read the language on the server so the first paint is already in the right language.

@@ -4,13 +4,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
-import useSWR, { useSWRConfig } from "swr";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useSWRConfig } from "swr";
 import { ProggaBot, type BotMood } from "@/components/brand/ProggaBot";
 import { ChatComposer, type ComposerHandle } from "@/components/chat/ChatComposer";
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { useChatLayout } from "@/components/chat/ChatShell";
-import { EnginePicker, PhotoButton, PhotoPreview, SubjectPicker } from "@/components/chat/ComposerTools";
+import { EnginePicker, PhotoButton, PhotoPreview } from "@/components/chat/ComposerTools";
 import { ProggaMark } from "@/components/brand/Logo";
 import { ChatMessage } from "@/components/tutor/ChatMessage";
 import { ErrorNote } from "@/components/ui/primitives";
@@ -18,8 +18,9 @@ import { useT, type TKey } from "@/i18n";
 import { errorMessage } from "@/lib/api";
 import { paletteFor } from "@/lib/skins";
 import { EXAMPLES, EXAMPLES_BN, previewAsMessage, startTutorSession } from "@/lib/tutor";
-import type { PreviewMessage, Subject } from "@/lib/types";
+import type { PreviewMessage } from "@/lib/types";
 import { useEngine, useEngineChoice } from "@/lib/useEngine";
+import { useTypingPlaceholder } from "@/lib/useTypingPlaceholder";
 
 const PLANNING_LINES: TKey[] = ["ask.plan1", "ask.plan2", "ask.plan3", "ask.plan4"];
 
@@ -33,11 +34,11 @@ function NewChat() {
   const { current: engine } = useEngineChoice();
   // photos only for a model that can read them
   const vision = engine ? engine.vision : defaultVision;
-  const { data: subjectsData } = useSWR<{ subjects: Subject[] }>(user.grade ? `/subjects?grade=${user.grade}` : null);
   const composer = useRef<ComposerHandle>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const [subject, setSubject] = useState(params.get("subject") ?? "math");
+  // no subject picker: Progga works the subject out from the question (a lesson link can still pass one)
+  const subject = params.get("subject") ?? "general";
   const [question, setQuestion] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -62,7 +63,8 @@ function NewChat() {
   }, [fresh]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    // only follow Progga's reply; the empty start screen should open at the top (matters on phones)
+    if (opening.length) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [opening]);
 
   useEffect(() => {
@@ -105,8 +107,15 @@ function NewChat() {
     }
   }
 
-  const subjects = subjectsData?.subjects ?? [];
-  const examples = ((ui === "bn" ? EXAMPLES_BN : EXAMPLES)[subject] ?? (ui === "bn" ? EXAMPLES_BN : EXAMPLES).math).slice(0, 4);
+  const examples = ((ui === "bn" ? EXAMPLES_BN : EXAMPLES)[subject] ?? (ui === "bn" ? EXAMPLES_BN : EXAMPLES).general).slice(0, 4);
+  // real example questions "typed" into the empty box, one every ~5s, taking turns across subjects
+  const typingExamples = useMemo(() => {
+    const lists = Object.values(ui === "bn" ? EXAMPLES_BN : EXAMPLES);
+    const out: string[] = [];
+    for (let i = 0; i < Math.max(...lists.map((l) => l.length)); i++) for (const l of lists) if (l[i] && !out.includes(l[i])) out.push(l[i]);
+    return out;
+  }, [ui]);
+  const typed = useTypingPlaceholder(typingExamples, !!question || busy);
   const mood: BotMood = busy ? "thinking" : blocked ? "oops" : question ? "asking" : "idle";
   const palette = user.skin?.palette ?? paletteFor(user.avatarSkin);
 
@@ -205,7 +214,7 @@ function NewChat() {
         value={question}
         onChange={setQuestion}
         onSubmit={() => submit()}
-        placeholder={t("ask.placeholder")}
+        placeholder={question || busy ? t("ask.placeholder") : `${typed}|`}
         label={t("ask.questionLabel")}
         busy={busy}
         disabled={busy}
@@ -215,7 +224,6 @@ function NewChat() {
         tools={
           <>
             {vision && <PhotoButton onPick={pickImage} disabled={busy} />}
-            {subjects.length > 0 && <SubjectPicker subjects={subjects} value={subject} onChange={setSubject} disabled={busy} />}
             <EnginePicker disabled={busy} />
           </>
         }

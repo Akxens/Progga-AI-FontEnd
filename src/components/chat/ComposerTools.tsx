@@ -2,34 +2,7 @@
 
 import { ChevronDown, Cpu, ImagePlus, X } from "lucide-react";
 import { useT } from "@/i18n";
-import type { Subject } from "@/lib/types";
 import { useEngineChoice } from "@/lib/useEngine";
-
-/** Compact subject chip with a native select underneath (great on phones). */
-export function SubjectPicker({ subjects, value, onChange, disabled }: { subjects: Subject[]; value: string; onChange: (id: string) => void; disabled?: boolean }) {
-  const { t, ui } = useT();
-  const current = subjects.find((s) => s.id === value);
-  return (
-    <label className="relative flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-cream pl-3 pr-2 text-sm font-bold text-ink-soft hover:border-brand-200 hover:text-ink">
-      <span>{current?.icon ?? "📚"}</span>
-      <span className="max-w-[9rem] truncate">{current ? (ui === "bn" ? current.nameBn : current.name) : t("chatui.subject")}</span>
-      <ChevronDown size={14} />
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        aria-label={t("chatui.subject")}
-        className="absolute inset-0 cursor-pointer opacity-0"
-      >
-        {subjects.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.icon} {ui === "bn" ? s.nameBn : s.name}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
 
 /** Which AI model answers: shown when there is more than one to pick from. */
 export function EnginePicker({ disabled }: { disabled?: boolean }) {

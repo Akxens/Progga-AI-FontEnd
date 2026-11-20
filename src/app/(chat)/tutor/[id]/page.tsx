@@ -399,6 +399,7 @@ export default function TutorSessionPage({ params }: { params: Promise<{ id: str
           {active ? (
             <ChatComposer
               ref={composer}
+              symbols
               value={text}
               onChange={setText}
               onSubmit={send}
@@ -434,6 +435,7 @@ export default function TutorSessionPage({ params }: { params: Promise<{ id: str
           ) : (
             <ChatComposer
               ref={composer}
+              symbols
               value={text}
               onChange={setText}
               onSubmit={() => startNew(text)}

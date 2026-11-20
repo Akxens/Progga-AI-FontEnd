@@ -30,11 +30,13 @@ interface Props {
   attachment?: React.ReactNode;
   autoFocus?: boolean;
   label: string;
+  /** show the maths-symbols keypad button (inside a lesson, not on the new-question box) */
+  symbols?: boolean;
 }
 
 /** ChatGPT-style composer pinned to the bottom: grows with the text, Enter sends, Shift+Enter breaks lines. */
 export const ChatComposer = forwardRef<ComposerHandle, Props>(function ChatComposer(
-  { value, onChange, onSubmit, placeholder, disabled, busy, canSendEmpty, tools, above, attachment, autoFocus, label },
+  { value, onChange, onSubmit, placeholder, disabled, busy, canSendEmpty, tools, above, attachment, autoFocus, label, symbols = false },
   ref,
 ) {
   const { t } = useT();
@@ -58,7 +60,7 @@ export const ChatComposer = forwardRef<ComposerHandle, Props>(function ChatCompo
   }
 
   return (
-    <div className="shrink-0 bg-gradient-to-t from-white via-white to-white/0 px-3 pb-3 pt-2 sm:px-6">
+    <div className="shrink-0 bg-gradient-to-t from-white via-white to-white/0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 sm:px-6">
       <div className="mx-auto w-full max-w-3xl">
         {above && <div className="mb-2 flex flex-wrap items-center gap-2">{above}</div>}
         <form
@@ -68,7 +70,7 @@ export const ChatComposer = forwardRef<ComposerHandle, Props>(function ChatCompo
           }}
           className="rounded-[26px] border-2 border-line bg-white shadow-soft transition-colors focus-within:border-brand-300 focus-within:shadow-lift"
         >
-          {showKeys && (
+          {symbols && showKeys && (
             <div className="flex flex-wrap gap-1.5 border-b border-line px-3 pb-2 pt-3">
               {SYMBOLS.map((s) => (
                 <button key={s} type="button" onClick={() => insert(s)} className="h-8 min-w-8 rounded-lg border border-line bg-cream px-2 font-display font-bold hover:border-brand-300 hover:bg-brand-50">
@@ -98,16 +100,18 @@ export const ChatComposer = forwardRef<ComposerHandle, Props>(function ChatCompo
           />
           <div className="flex items-center gap-1.5 px-2.5 pb-2.5 pt-1">
             {tools}
-            <button
-              type="button"
-              onClick={() => setShowKeys((v) => !v)}
-              className={clsx("grid h-9 w-9 place-items-center rounded-full transition-colors", showKeys ? "bg-brand-100 text-brand-700" : "text-ink-muted hover:bg-cream hover:text-ink")}
-              title={t("session.symbols")}
-              aria-label={t("session.symbols")}
-              aria-pressed={showKeys}
-            >
-              <Sigma size={18} />
-            </button>
+            {symbols && (
+              <button
+                type="button"
+                onClick={() => setShowKeys((v) => !v)}
+                className={clsx("grid h-9 w-9 place-items-center rounded-full transition-colors", showKeys ? "bg-brand-100 text-brand-700" : "text-ink-muted hover:bg-cream hover:text-ink")}
+                title={t("session.symbols")}
+                aria-label={t("session.symbols")}
+                aria-pressed={showKeys}
+              >
+                <Sigma size={18} />
+              </button>
+            )}
             <span className="ml-auto hidden text-[11px] font-semibold text-ink-muted md:block">{t("session.enterHint")}</span>
             <button
               type="submit"
@@ -122,7 +126,8 @@ export const ChatComposer = forwardRef<ComposerHandle, Props>(function ChatCompo
             </button>
           </div>
         </form>
-        <p className="mt-2 text-center text-[11px] font-semibold text-ink-muted">{t("chatui.disclaimer")}</p>
+        {/* the header already says this on phones; keep the composer compact there */}
+        <p className="mt-2 hidden text-center text-[11px] font-semibold text-ink-muted sm:block">{t("chatui.disclaimer")}</p>
       </div>
     </div>
   );

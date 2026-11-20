@@ -61,7 +61,8 @@ export default function HomePage() {
         <StatCard icon="🏅" label={t("home.badges")} value={n(data.badgeCount)} sub={t("home.coins", { n: user.coins ?? 0 })} tint="bg-banana-50" href="/rewards" />
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-[1.25fr_1fr]">
+      {/* minmax(0,…) so long quest names truncate instead of stretching the page on phones */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         {/* Quests */}
         <section className="card p-5 sm:p-6">
           <SectionTitle

@@ -36,7 +36,8 @@ export function AnswerOptions({
       </p>
       <motion.div
         key={stepKey}
-        className="grid grid-cols-2 gap-2"
+        // phones: one full-width column (long answers wrap less) that scrolls instead of pushing the chat off screen
+        className="grid max-h-[34dvh] grid-cols-1 gap-1.5 overflow-y-auto p-0.5 sm:max-h-none sm:grid-cols-2 sm:gap-2 sm:overflow-visible sm:p-0"
         initial="hidden"
         animate="show"
         variants={{ show: { transition: { staggerChildren: 0.06 } } }}
@@ -56,7 +57,7 @@ export function AnswerOptions({
               // one after another, so the glow ripples across the cards
               style={{ animationDelay: `${i * 0.3}s` }}
               className={clsx(
-                "group flex min-h-12 cursor-pointer items-center gap-2.5 rounded-2xl border-2 px-2.5 py-2 text-left text-sm font-bold transition-colors disabled:cursor-default disabled:opacity-50",
+                "group flex min-h-11 cursor-pointer items-center gap-2.5 rounded-2xl border-2 px-2.5 py-1.5 sm:min-h-12 sm:py-2 text-left text-sm font-bold transition-colors disabled:cursor-default disabled:opacity-50",
                 !disabled && "animate-option-glow",
                 on ? "border-brand-400 bg-brand-50 text-brand-700" : "border-brand-200 bg-white text-ink hover:border-brand-400 hover:bg-brand-50",
               )}

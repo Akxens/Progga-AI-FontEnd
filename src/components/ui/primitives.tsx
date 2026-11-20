@@ -45,7 +45,7 @@ export function PageLoader({ label }: { label?: string }) {
 export function SectionTitle({ eyebrow, title, action }: { eyebrow?: string; title: string; action?: React.ReactNode }) {
   return (
     <div className="mb-4 flex items-end justify-between gap-4">
-      <div>
+      <div className="min-w-0">
         {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
         <h2 className="text-2xl font-extrabold">{title}</h2>
       </div>

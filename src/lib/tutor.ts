@@ -26,6 +26,7 @@ export const previewAsMessage = (p: PreviewMessage, i: number): TutorMessage => 
 });
 
 export const EXAMPLES_BN: Record<string, string[]> = {
+  general: ["3x + 5 = 20 সমাধান করো", "উদ্ভিদ কীভাবে খাদ্য তৈরি করে?", "'a' আর 'an' কখন ব্যবহার করব?", "২১ ফেব্রুয়ারি কেন গুরুত্বপূর্ণ?"],
   math: ["3x + 5 = 20 সমাধান করো", "47 + 38 কত?", "ত্রিভুজের ক্ষেত্রফল কীভাবে বের করব?"],
   science: ["বজ্রপাতের আগে বিদ্যুৎ চমকানো দেখি কেন?", "উদ্ভিদ কীভাবে খাদ্য তৈরি করে?", "বরফ পানিতে ভাসে কেন?"],
   english: ["'a' আর 'an' কখন ব্যবহার করব?", "Passive করো: Rina wrote a letter", "Pronoun কী?"],
@@ -39,6 +40,7 @@ export const EXAMPLES_BN: Record<string, string[]> = {
 };
 
 export const EXAMPLES: Record<string, string[]> = {
+  general: ["Solve 3x + 5 = 20", "How do plants make food?", "When do I use 'a' and 'an'?", "Why is 21 February important?"],
   math: ["Solve 3x + 5 = 20", "What is 47 + 38?", "How do I find the area of a triangle?"],
   science: ["Why do we see lightning before thunder?", "How do plants make food?", "What makes ice float?"],
   english: ["When do I use 'a' and 'an'?", "Change to passive: Rina wrote a letter", "What is a pronoun?"],
