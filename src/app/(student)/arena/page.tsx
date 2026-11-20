@@ -12,6 +12,7 @@ import { useCelebrate } from "@/components/celebrate/CelebrationProvider";
 import { PageLoader, ProgressBar, Spinner, SubjectIcon } from "@/components/ui/primitives";
 import { useT } from "@/i18n";
 import { api, errorMessage } from "@/lib/api";
+import { useFeatures } from "@/lib/features";
 import { paletteFor } from "@/lib/skins";
 import type { QuizAttempt, QuizQuestion, Rewards, Subject } from "@/lib/types";
 import { useMe } from "@/lib/useMe";
@@ -323,6 +324,8 @@ function Results({ game, result, onExit, onReplay }: { game: Game; result: Answe
 /** After practising solo, invite the student to battle a real classmate. */
 function BattleCta() {
   const { t } = useT();
+  const { features } = useFeatures();
+  if (!features.battle) return null;
   return (
     <Link
       href="/battle"

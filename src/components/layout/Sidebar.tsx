@@ -8,6 +8,7 @@ import { Logo, ProggaMark } from "@/components/brand/Logo";
 import { ProggaBot } from "@/components/brand/ProggaBot";
 import { Avatar } from "@/components/profile/Avatar";
 import { useT, type TKey } from "@/i18n";
+import { useFeatures, type FeatureId, type Features } from "@/lib/features";
 import { paletteFor } from "@/lib/skins";
 import type { User } from "@/lib/types";
 import { useLogout } from "@/lib/useMe";
@@ -20,6 +21,8 @@ export interface NavItem {
   short?: TKey;
   icon: typeof Home;
   hot?: boolean;
+  /** only shown while an admin has this feature switched on */
+  feature?: FeatureId;
 }
 
 const NAV_GROUPS: { label: TKey; items: NavItem[] }[] = [
@@ -29,14 +32,14 @@ const NAV_GROUPS: { label: TKey; items: NavItem[] }[] = [
       { href: "/home", label: "nav.home", icon: Home },
       { href: "/tutor", label: "nav.ask", icon: Bot },
       { href: "/lessons", label: "nav.lessons", icon: PlayCircle },
-      { href: "/lab", label: "nav.lab", short: "nav.labShort", icon: FlaskConical },
+      { href: "/lab", label: "nav.lab", short: "nav.labShort", icon: FlaskConical, feature: "lab" },
     ],
   },
   {
     label: "nav.groupPlay",
     items: [
       { href: "/arena", label: "nav.arena", icon: Zap },
-      { href: "/battle", label: "nav.battle", short: "nav.battleShort", icon: Swords, hot: true },
+      { href: "/battle", label: "nav.battle", short: "nav.battleShort", icon: Swords, hot: true, feature: "battle" },
     ],
   },
   {
@@ -49,6 +52,9 @@ const NAV_GROUPS: { label: TKey; items: NavItem[] }[] = [
   },
 ];
 export const NAV = NAV_GROUPS.flatMap((g) => g.items);
+
+/** Drops menu items whose feature an admin has hidden. */
+export const visibleNav = (items: NavItem[], features: Features) => items.filter((i) => !i.feature || features[i.feature]);
 
 const SIDEBAR_WIDE = "16rem";
 const SIDEBAR_SLIM = "5rem";
@@ -107,6 +113,8 @@ export function useSidebar(pathname: string) {
 
 export function Sidebar({ user, pathname, collapsed, toggle }: { user: User; pathname: string; collapsed: boolean; toggle: () => void }) {
   const { t } = useT();
+  const { features } = useFeatures();
+  const groups = NAV_GROUPS.map((g) => ({ ...g, items: visibleNav(g.items, features) })).filter((g) => g.items.length > 0);
   return (
     <aside
       style={{ width: "var(--sidebar-w)" }}
@@ -131,7 +139,7 @@ export function Sidebar({ user, pathname, collapsed, toggle }: { user: User; pat
 
       {/* tooltips stick out to the right, so the slim rail can't clip */}
       <nav className={clsx("flex-1 px-3 py-3", collapsed ? "overflow-visible" : "overflow-y-auto overflow-x-hidden")}>
-        {NAV_GROUPS.map((g, gi) => (
+        {groups.map((g, gi) => (
           <div key={g.label} className={clsx(gi > 0 && "mt-4")}>
             {collapsed ? (
               gi > 0 && <div className="mx-auto mb-3 h-px w-8 bg-line" />

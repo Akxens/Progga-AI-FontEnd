@@ -8,10 +8,11 @@ import { useEffect, useState } from "react";
 import { ProggaBot } from "@/components/brand/ProggaBot";
 import { Logo } from "@/components/brand/Logo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { NAV, Sidebar, isUnder, sidebarVars, useSidebar } from "@/components/layout/Sidebar";
+import { NAV, Sidebar, isUnder, sidebarVars, useSidebar, visibleNav } from "@/components/layout/Sidebar";
 import { Avatar } from "@/components/profile/Avatar";
 import { PageLoader } from "@/components/ui/primitives";
 import { useSyncAccountLanguage, useT } from "@/i18n";
+import { useFeatures } from "@/lib/features";
 import { homeFor } from "@/lib/routes";
 import { paletteFor } from "@/lib/skins";
 import { firstName } from "@/lib/format";
@@ -26,6 +27,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { t } = useT();
   const sidebar = useSidebar(pathname);
+  const { features } = useFeatures();
+  const mobileNav = visibleNav(MOBILE_NAV, features);
   useSyncAccountLanguage(user);
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile tab bar */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-md justify-between">
-          {MOBILE_NAV.map(({ href, label, short, icon: Icon }) => (
+          {mobileNav.map(({ href, label, short, icon: Icon }) => (
             <Link key={href} href={href} className={clsx("flex min-w-0 flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-bold", isUnder(pathname, href) ? "text-brand-600" : "text-ink-muted")}>
               <span className={clsx("grid h-8 w-12 place-items-center rounded-full transition-colors", isUnder(pathname, href) && "bg-brand-100")}>
                 <Icon size={20} strokeWidth={2.4} />

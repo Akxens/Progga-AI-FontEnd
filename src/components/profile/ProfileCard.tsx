@@ -9,6 +9,7 @@ import { ProggaBot } from "@/components/brand/ProggaBot";
 import { Avatar } from "@/components/profile/Avatar";
 import { useFormat, useT } from "@/i18n";
 import type { Standing } from "@/lib/battle";
+import { useFeatures } from "@/lib/features";
 import { paletteFor } from "@/lib/skins";
 import type { User } from "@/lib/types";
 
@@ -20,7 +21,8 @@ export function ProfileCard({ user, className }: { user: User; className?: strin
   const { t, tx, n } = useT();
   const { gradeLabel } = useFormat();
   const leagueName = useLeagueName();
-  const { data: standing } = useSWR<Standing>(user.grade ? "/battle/standing" : null);
+  const { features } = useFeatures();
+  const { data: standing } = useSWR<Standing>(features.battle && user.grade ? "/battle/standing" : null);
   const lvl = user.level!;
   const nickname = user.profile?.nickname?.trim();
 
@@ -63,11 +65,13 @@ export function ProfileCard({ user, className }: { user: User; className?: strin
       </div>
 
       {/* coins · league · trophies */}
-      <div className="grid grid-cols-3 divide-x divide-line">
+      <div className={clsx("grid divide-x divide-line", features.battle ? "grid-cols-3" : "grid-cols-1")}>
         <Tile href="/rewards" label={t("card.kola")}>
           <span className="text-2xl leading-none">🍌</span>
           <span className="font-display text-xl font-extrabold tabular-nums">{n(user.coins ?? 0)}</span>
         </Tile>
+        {features.battle && (
+          <>
         <Tile href="/battle" label={standing ? leagueName(standing.league.family, standing.league.division) : user.grade ? "…" : t("card.noClass")}>
           {standing ? (
             <LeagueBadge family={standing.league.family} division={standing.league.division} size={44} glow />
@@ -79,6 +83,8 @@ export function ProfileCard({ user, className }: { user: User; className?: strin
           <TrophyIcon size={26} />
           <span className="font-display text-xl font-extrabold tabular-nums">{standing ? n(standing.trophies) : "–"}</span>
         </Tile>
+          </>
+        )}
       </div>
     </section>
   );

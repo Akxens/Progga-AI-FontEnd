@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { CheckCircle2, CircleAlert, FlaskConical, Gauge, KeyRound, Save, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
+import { FeatureSettings } from "@/components/admin/FeatureSettings";
 import { VoiceSettings } from "@/components/admin/VoiceSettings";
 import { ProggaBot, type BotMood } from "@/components/brand/ProggaBot";
 import { useCelebrate } from "@/components/celebrate/CelebrationProvider";
@@ -120,6 +121,8 @@ export default function AiSettingsPage() {
         <h1 className="mt-1 text-4xl font-extrabold">Progga&apos;s brain 🧠</h1>
         <p className="mt-1 max-w-2xl text-ink-soft">Choose which AI provider and model power the tutor. Changes apply instantly for every student, no restart needed.</p>
       </div>
+
+      <FeatureSettings />
 
       {/* Currently active */}
       <div className="card flex flex-col gap-5 bg-gradient-to-br from-brand-500 to-brand-700 p-6 text-white sm:flex-row sm:items-center">
