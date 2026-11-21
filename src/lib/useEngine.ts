@@ -27,12 +27,24 @@ export interface EngineChoice {
   isDefault: boolean;
 }
 
-// v2: earlier picks are dropped once so every student starts on the default (Progga Nova).
-const ENGINE_KEY = "progga.engine.v2";
+// v3: earlier picks are dropped once so every student starts on Progga Nova again.
+const ENGINE_KEY = "progga.engine.v3";
+/** Progga Nova (the OpenAI engine) is what every student starts on. */
+const NOVA_PROVIDER = "openai";
+/** Nova's id once the engine list has loaded, sent when the student hasn't picked another model. */
+let fallbackEngine: string | undefined;
 const ENGINE_EVENT = "progga:engine";
 
 /** The model this student picked (saved in this browser), sent with every tutor request. */
 export function storedEngine(): string | undefined {
+  try {
+    return localStorage.getItem(ENGINE_KEY) ?? fallbackEngine;
+  } catch {
+    return fallbackEngine;
+  }
+}
+
+function storedPick(): string | undefined {
   try {
     return localStorage.getItem(ENGINE_KEY) ?? undefined;
   } catch {
@@ -45,15 +57,17 @@ export function useEngineChoice() {
   const { data } = useSWR<{ engines: EngineChoice[] }>("/tutor/engines", { revalidateOnFocus: false, dedupingInterval: 60_000 });
   const [picked, setPicked] = useState<string | undefined>(undefined);
   useEffect(() => {
-    setPicked(storedEngine());
+    setPicked(storedPick());
     // keep every picker on the page in step
-    const sync = () => setPicked(storedEngine());
+    const sync = () => setPicked(storedPick());
     window.addEventListener(ENGINE_EVENT, sync);
     return () => window.removeEventListener(ENGINE_EVENT, sync);
   }, []);
 
   const engines = data?.engines ?? [];
-  const current = engines.find((e) => e.id === picked) ?? engines.find((e) => e.isDefault) ?? engines[0];
+  const nova = engines.find((e) => e.provider === NOVA_PROVIDER) ?? engines.find((e) => e.isDefault) ?? engines[0];
+  fallbackEngine = nova?.id;
+  const current = engines.find((e) => e.id === picked) ?? nova;
   const choose = (id: string) => {
     try {
       localStorage.setItem(ENGINE_KEY, id);
