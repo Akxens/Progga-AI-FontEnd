@@ -8,7 +8,8 @@ import { useCelebrate } from "@/components/celebrate/CelebrationProvider";
 import { ErrorNote, PageLoader, Spinner } from "@/components/ui/primitives";
 import { api, errorMessage } from "@/lib/api";
 
-type TtsProviderId = "indicf5" | "openai" | "gemini" | "azure";
+type TtsProviderId = "elevenlabs" | "indicf5" | "openai" | "gemini" | "azure";
+type Lang = "bn" | "en";
 
 interface VoiceOption {
   id: string;
@@ -26,12 +27,24 @@ interface TtsProviderInfo {
   defaultVoice: string;
   lift: number;
 }
-interface VoiceConfig {
+interface VoiceChoice {
   provider: TtsProviderId;
   voice: string;
 }
+/** The Bangla (and default) voice, plus an optional different one for English replies. */
+interface VoiceConfig extends VoiceChoice {
+  en?: VoiceChoice;
+}
+
+const LANGS: { id: Lang; label: string }[] = [
+  { id: "bn", label: "বাংলা" },
+  { id: "en", label: "English" },
+];
+const choiceFor = (cfg: VoiceConfig, lang: Lang): VoiceChoice => (lang === "en" && cfg.en ? cfg.en : { provider: cfg.provider, voice: cfg.voice });
+const sameChoice = (a: VoiceChoice, b: VoiceChoice) => a.provider === b.provider && a.voice === b.voice;
 
 const PROVIDER_STYLE: Record<TtsProviderId, { icon: string; tint: string }> = {
+  elevenlabs: { icon: "🎙️", tint: "from-coral-50 to-white" },
   indicf5: { icon: "🖥️", tint: "from-banana-50 to-white" },
   gemini: { icon: "✨", tint: "from-sky-50 to-white" },
   azure: { icon: "🔷", tint: "from-brand-50 to-white" },
@@ -49,6 +62,7 @@ export function VoiceSettings() {
   const { mutate: globalMutate } = useSWRConfig();
   const { toast, burst } = useCelebrate();
   const [draft, setDraft] = useState<VoiceConfig | null>(null);
+  const [lang, setLang] = useState<Lang>("bn");
   const [sample, setSample] = useState(SAMPLES.bn);
   const [previewing, setPreviewing] = useState<"loading" | "playing" | null>(null);
   const [saving, setSaving] = useState(false);
@@ -63,9 +77,28 @@ export function VoiceSettings() {
   if (!data || !draft) return <PageLoader label="Loading voice settings…" />;
 
   const active = data.config;
-  const activeProvider = data.providers.find((p) => p.id === active.provider)!;
-  const provider = data.providers.find((p) => p.id === draft.provider)!;
-  const dirty = draft.provider !== active.provider || draft.voice !== active.voice;
+  const info = (id: TtsProviderId) => data.providers.find((p) => p.id === id)!;
+  const voiceName = (c: VoiceChoice) => info(c.provider).voices.find((v) => v.id === c.voice)?.label ?? c.voice;
+  const liveLabel = (c: VoiceChoice) => `${info(c.provider).label} · ${voiceName(c)}`;
+  // the language being edited, and what it speaks with in the draft and live
+  const choice = choiceFor(draft, lang);
+  const activeChoice = choiceFor(active, lang);
+  const provider = info(choice.provider);
+  const englishSame = !draft.en;
+  const dirty = !sameChoice(choiceFor(draft, "bn"), choiceFor(active, "bn")) || !sameChoice(choiceFor(draft, "en"), choiceFor(active, "en")) || !draft.en !== !active.en;
+
+  /** Changes the voice of the language being edited. */
+  function setChoice(c: VoiceChoice) {
+    if (!draft) return;
+    setDraft(lang === "en" ? { ...draft, en: c } : { ...draft, ...c });
+  }
+
+  function switchLang(l: Lang) {
+    stop();
+    setError(null);
+    setLang(l);
+    setSample(SAMPLES[l]);
+  }
 
   function stop() {
     audio.current?.pause();
@@ -76,7 +109,7 @@ export function VoiceSettings() {
     if (!p.configured) return;
     stop();
     setError(null);
-    setDraft(p.id === active.provider ? active : { provider: p.id, voice: p.defaultVoice });
+    setChoice(p.id === activeChoice.provider ? activeChoice : { provider: p.id, voice: p.defaultVoice });
   }
 
   async function preview() {
@@ -89,7 +122,7 @@ export function VoiceSettings() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...draft, text: sample }),
+        body: JSON.stringify({ ...choice, text: sample }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
@@ -122,7 +155,7 @@ export function VoiceSettings() {
       await mutate();
       void globalMutate("/health");
       burst();
-      toast(`Progga now speaks as ${draft.voice}`, "🔊", "brand");
+      toast(`Progga's voice is updated`, "🔊", "brand");
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -135,18 +168,50 @@ export function VoiceSettings() {
       <div>
         <h2 className="text-3xl font-extrabold">Progga&apos;s voice 🔊</h2>
         <p className="mt-1 max-w-2xl text-ink-soft">
-          Choose the text-to-speech engine and voice that read Progga&apos;s replies aloud. Listen to a sample first; changes apply instantly for every student.
+          Choose the engine and voice that read Progga&apos;s replies aloud, separately for Bangla and English replies. Listen to a sample first; changes apply instantly for every student.
         </p>
-        <p className="mt-2 inline-block rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">
-          Live: {activeProvider.label} · {active.voice}
-        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <p className="rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">বাংলা: {liveLabel(choiceFor(active, "bn"))}</p>
+          <p className="rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">English: {liveLabel(choiceFor(active, "en"))}</p>
+        </div>
       </div>
 
       <section>
-        <h3 className="mb-3 text-xl font-extrabold">1 · Engine</h3>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <h3 className="mb-3 text-xl font-extrabold">Language</h3>
+        <div className="inline-flex rounded-full border border-line bg-white p-1">
+          {LANGS.map((l) => (
+            <button
+              key={l.id}
+              onClick={() => switchLang(l.id)}
+              className={clsx("rounded-full px-5 py-2 text-sm font-extrabold transition-colors", lang === l.id ? "bg-ink text-white" : "text-ink-soft hover:text-ink")}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
+        {lang === "en" && (
+          <label className="mt-3 flex items-center gap-2 text-sm font-semibold text-ink-soft">
+            <input
+              type="checkbox"
+              checked={englishSame}
+              onChange={(e) => {
+                stop();
+                if (e.target.checked) {
+                  const { en: _en, ...rest } = draft;
+                  setDraft(rest);
+                } else setDraft({ ...draft, en: { provider: draft.provider, voice: draft.voice } });
+              }}
+            />
+            Use the Bangla voice for English replies too
+          </label>
+        )}
+      </section>
+
+      <section>
+        <h3 className="mb-3 text-xl font-extrabold">1 · Engine for {lang === "bn" ? "Bangla" : "English"} replies</h3>
+        <div className={clsx("grid gap-3 sm:grid-cols-2 lg:grid-cols-3", lang === "en" && englishSame && "pointer-events-none opacity-50")}>
           {data.providers.map((p) => {
-            const selected = draft.provider === p.id;
+            const selected = choice.provider === p.id;
             return (
               <button
                 key={p.id}
@@ -159,7 +224,7 @@ export function VoiceSettings() {
                   !p.configured && "cursor-not-allowed opacity-55 hover:translate-y-0 hover:shadow-soft",
                 )}
               >
-                {active.provider === p.id && <span className="absolute right-3 top-3 rounded-full bg-mint-500 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">Live</span>}
+                {activeChoice.provider === p.id && <span className="absolute right-3 top-3 rounded-full bg-mint-500 px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">Live</span>}
                 <span className="text-2xl">{PROVIDER_STYLE[p.id].icon}</span>
                 <p className="mt-2 font-display text-lg font-extrabold leading-tight">{p.label}</p>
                 <p className="mt-1 text-xs font-semibold text-ink-soft">বাংলা: {p.bangla}</p>
@@ -176,15 +241,15 @@ export function VoiceSettings() {
       <section className="card p-6">
         <h3 className="text-xl font-extrabold">2 · Voice</h3>
         <p className="mt-1 text-sm text-ink-soft">{provider.label} · model {provider.model}</p>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className={clsx("mt-4 flex flex-wrap gap-2", lang === "en" && englishSame && "pointer-events-none opacity-50")}>
           {provider.voices.map((v) => {
-            const on = draft.voice === v.id;
+            const on = choice.voice === v.id;
             return (
               <button
                 key={v.id}
                 onClick={() => {
                   stop();
-                  setDraft({ ...draft, voice: v.id });
+                  setChoice({ ...choice, voice: v.id });
                 }}
                 className={clsx(
                   "rounded-2xl border-2 px-3 py-1.5 text-left text-sm transition-colors",
@@ -201,16 +266,12 @@ export function VoiceSettings() {
 
       <section className="card p-6">
         <h3 className="text-xl font-extrabold">3 · Listen & switch</h3>
-        <div className="mt-3 flex gap-2">
-          <button onClick={() => setSample(SAMPLES.bn)} className={clsx("btn-ghost btn-sm", sample === SAMPLES.bn && "bg-brand-50 text-brand-700")}>বাংলা sample</button>
-          <button onClick={() => setSample(SAMPLES.en)} className={clsx("btn-ghost btn-sm", sample === SAMPLES.en && "bg-brand-50 text-brand-700")}>English sample</button>
-        </div>
         <label className="label mt-3" htmlFor="voice-sample">What Progga says</label>
         <textarea id="voice-sample" className="input min-h-24" maxLength={600} value={sample} onChange={(e) => setSample(e.target.value)} />
         <div className="mt-4 flex flex-wrap gap-3">
           <button onClick={previewing ? stop : preview} disabled={saving || !sample.trim()} className="btn-ghost">
             {previewing === "loading" ? <Spinner /> : previewing === "playing" ? <Square size={18} /> : <Play size={18} />}
-            {previewing === "loading" ? "Recording…" : previewing === "playing" ? "Stop" : `Listen to ${draft.voice}`}
+            {previewing === "loading" ? "Recording…" : previewing === "playing" ? "Stop" : `Listen to ${voiceName(choice)}`}
           </button>
           <button onClick={save} disabled={!dirty || saving} className="btn-primary">
             {saving ? <Spinner /> : <Save size={18} />} {dirty ? "Save & switch" : "Already live"}
