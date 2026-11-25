@@ -493,7 +493,7 @@ export function CourseForm({ mode, id }: CourseFormProps) {
 
       {/* Sticky Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-6 py-3 shadow-lg lg:left-64">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4">
+        <div className="flex w-full items-center justify-between gap-4">
           <div className="text-xs text-slate-500 font-medium hidden sm:block">
             {mode === "create" ? "Ready to add new course specification" : `Editing ${formData.title || "course"}`}
           </div>
