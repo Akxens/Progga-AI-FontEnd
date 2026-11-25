@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import useSWR, { useSWRConfig } from "swr";
-import { api, ApiError } from "./api";
+import { api, ApiError, setAuthToken } from "./api";
 import type { User } from "./types";
 
 export function useMe() {
@@ -26,6 +26,7 @@ export function useLogout() {
     } catch {
       // even if logout network call fails, proceed to clear client state
     }
+    setAuthToken(null);
     // drop every cached response so the next user starts clean
     await mutate(() => true, undefined, { revalidate: false });
     router.replace("/login?logout=1");

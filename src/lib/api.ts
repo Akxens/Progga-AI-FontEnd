@@ -14,6 +14,30 @@ export class ApiError extends Error {
 const rawBackend = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL || "http://localhost:4000";
 export const API_BASE = `${rawBackend.replace(/\/+$/, "")}/api`;
 
+const TOKEN_KEY = "progga_auth_token";
+
+export function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setAuthToken(token: string | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch {
+    // ignore
+  }
+}
+
 type Options = { method?: string; body?: unknown; form?: FormData; signal?: AbortSignal };
 
 const offline = () => new ApiError(0, "Can't reach Progga right now. Check your internet and try again.", "network");
@@ -21,6 +45,10 @@ const offline = () => new ApiError(0, "Can't reach Progga right now. Check your 
 async function send(path: string, opts: Options, accept?: string): Promise<Response> {
   const headers: Record<string, string> = opts.form ? {} : { "Content-Type": "application/json" };
   if (accept) headers.Accept = accept;
+  const token = getAuthToken();
+  if (token && !headers.Authorization && !headers.authorization) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   try {
     return await fetch(`${API_BASE}${normalizedPath}`, {
@@ -50,6 +78,13 @@ async function readJson<T>(res: Response): Promise<T> {
       }
       throw new ApiError(res.status, "Invalid response from server", "invalid_response");
     }
+  }
+
+  if (data && typeof data === "object" && typeof (data as any).token === "string") {
+    setAuthToken((data as any).token);
+  }
+  if (res.status === 401) {
+    setAuthToken(null);
   }
 
   if (!res.ok) {
