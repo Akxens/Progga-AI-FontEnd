@@ -60,7 +60,7 @@ export default function StudentsListPage() {
   const list = useList<StudentRow>({
     endpoint: "/api/admin/students",
     defaultSort: "-createdAt",
-    defaultPageSize: 20,
+    defaultPageSize: 10,
     filters: filterSpecs,
   });
 
