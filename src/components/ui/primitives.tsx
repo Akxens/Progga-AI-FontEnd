@@ -28,7 +28,11 @@ export function ProgressBar({
 }
 
 export function Spinner({ className, size = 20 }: { className?: string; size?: number }) {
-  return <Loader2 size={size} className={clsx("animate-spin", className)} />;
+  return (
+    <span className="inline-flex" suppressHydrationWarning>
+      <Loader2 size={size} className={clsx("animate-spin", className)} />
+    </span>
+  );
 }
 
 export function PageLoader({ label }: { label?: string }) {

@@ -37,8 +37,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const initialLang = isLanguage(saved) ? saved : "en";
 
   return (
-    <html lang={initialLang === "bn" ? "bn" : "en"} className={`${baloo.variable} ${balooDa.variable} ${nunito.variable} ${hind.variable}`}>
-      <body>
+    <html
+      lang={initialLang === "bn" ? "bn" : "en"}
+      className={`${baloo.variable} ${balooDa.variable} ${nunito.variable} ${hind.variable}`}
+      suppressHydrationWarning
+    >
+      <body suppressHydrationWarning>
         <Providers initialLang={initialLang}>{children}</Providers>
       </body>
     </html>

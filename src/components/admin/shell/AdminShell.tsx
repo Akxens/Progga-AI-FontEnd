@@ -73,7 +73,11 @@ export function AdminShell({ children }: AdminShellProps) {
 
   // Loading state
   if (userLoading || statusLoading) {
-    return <PageLoader />;
+    return (
+      <div suppressHydrationWarning>
+        <PageLoader />
+      </div>
+    );
   }
 
   // If outside main portal flow (MFA / Workspace pages), render clean container
