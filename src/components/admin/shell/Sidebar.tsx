@@ -230,11 +230,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         {/* Mobile Header */}
         <div className="flex h-14 items-center justify-between border-b border-slate-200 px-5 lg:hidden">
-          <Link href="/admin" onClick={onClose} className="flex items-center gap-2.5">
+          <Link href="/admin" onClick={onClose} className="flex items-center">
             <Logo size={28} />
-            <span className="font-display font-extrabold text-sm tracking-tight text-slate-900">
-              Control Centre
-            </span>
           </Link>
           <button
             onClick={onClose}
