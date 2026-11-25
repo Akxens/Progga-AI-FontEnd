@@ -87,11 +87,11 @@ export function AdminShell({ children }: AdminShellProps) {
 
   // When fully gated, render standard admin layout
   return (
-    <div className="flex min-h-screen bg-slate-50 text-ink">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex flex-1 flex-col min-w-0">
-        <Topbar onMenuToggle={() => setSidebarOpen(true)} />
-        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 min-w-0">
+    <div className="flex min-h-screen flex-col bg-slate-50 text-ink">
+      <Topbar onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
+      <div className="flex flex-1 min-w-0">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 min-w-0 overflow-y-auto">
           {children}
         </main>
       </div>
