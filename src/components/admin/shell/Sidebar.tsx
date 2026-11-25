@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import {
   Home,
+  LayoutDashboard,
   BookOpen,
   Layers,
   ClipboardList,
@@ -253,15 +254,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             className={clsx(
               "flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-colors",
               isDashboardActive
-                ? "bg-sky-100/70 text-sky-600 dark:bg-sky-950/60 dark:text-sky-300 font-bold"
+                ? "bg-blue-600 text-white font-bold shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
             )}
           >
-            <Home
+            <LayoutDashboard
               size={16}
-              className={clsx("shrink-0", isDashboardActive ? "text-sky-600 dark:text-sky-400" : "text-slate-500")}
+              className={clsx("shrink-0", isDashboardActive ? "text-white" : "text-slate-500")}
             />
-            <span>Dashboard</span>
+            <span>Executive Dashboard</span>
           </Link>
 
           {/* 2. Accordion Sections */}
