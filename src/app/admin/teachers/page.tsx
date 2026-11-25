@@ -141,7 +141,7 @@ export default function TeachersListPage() {
             </Link>
             <Link
               href="/admin/teachers/new"
-              className="flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2 text-xs font-bold text-white shadow-soft hover:bg-brand-600 transition-colors"
+              className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition-colors"
             >
               <UserPlus size={15} />
               <span>Add Teacher</span>

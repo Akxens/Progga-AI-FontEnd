@@ -312,7 +312,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                           className={clsx(
                             "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition-colors",
                             active
-                              ? "bg-sky-100/70 text-sky-600 font-bold shadow-2xs"
+                              ? "bg-blue-50 text-blue-600 font-bold shadow-2xs"
                               : "text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900",
                           )}
                         >
@@ -320,7 +320,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                             size={15}
                             className={clsx(
                               "shrink-0",
-                              active ? "text-sky-600" : "text-slate-400",
+                              active ? "text-blue-600" : "text-slate-400",
                             )}
                           />
                           <span className="truncate">{child.label}</span>

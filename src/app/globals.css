@@ -17,16 +17,20 @@
    Playful palette (brand blue + banana + mint) on a warm cream canvas.
    Sleek comes from restraint: soft shadows, generous radius, calm spacing. */
 @theme {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-foreground: #ffffff;
+
   --color-brand-50: #eff6ff;
   --color-brand-100: #dbeafe;
   --color-brand-200: #bfdbfe;
   --color-brand-300: #93c5fd;
-  --color-brand-400: #5aa2fb;
-  --color-brand-500: #2b7be8;
-  --color-brand-600: #1e63d1;
-  --color-brand-700: #1a4fab;
-  --color-brand-800: #1a4189;
-  --color-brand-900: #193566;
+  --color-brand-400: #3b82f6;
+  --color-brand-500: #2563eb;
+  --color-brand-600: #1d4ed8;
+  --color-brand-700: #1e40af;
+  --color-brand-800: #1e3a8a;
+  --color-brand-900: #172554;
 
   --color-banana-50: #fffbea;
   --color-banana-100: #fff3c4;

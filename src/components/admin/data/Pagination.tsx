@@ -78,7 +78,7 @@ export function Pagination({ page, pageSize, total, onPage, onPageSize }: Pagina
               onClick={() => onPage(p)}
               className={`flex h-8 min-w-[32px] items-center justify-center rounded-lg px-2 text-xs font-bold transition-colors cursor-pointer ${
                 isActive
-                  ? "bg-sky-600 text-white shadow-xs"
+                  ? "bg-blue-600 text-white shadow-xs"
                   : "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
               }`}
             >

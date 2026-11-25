@@ -564,7 +564,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
           <button
             onClick={handlePublish}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
           >
             <Upload size={13} />
             <span>Publish Course</span>
