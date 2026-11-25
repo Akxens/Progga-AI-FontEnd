@@ -1,4 +1,4 @@
-import { ApiError } from "../api";
+import { API_BASE, ApiError } from "../api";
 
 export const ADMIN_WORKSPACE_KEY = "progga.admin.workspace";
 
@@ -46,7 +46,9 @@ const offline = () =>
  * Attaches X-Workspace and optional Idempotency-Key automatically.
  */
 export async function adminApi<T>(path: string, opts: AdminApiOptions = {}): Promise<T> {
-  const url = path.startsWith("/api") ? path : `/api${path.startsWith("/") ? path : `/${path}`}`;
+  const cleanPath = path.startsWith("/api/") ? path.slice(4) : path === "/api" ? "" : path;
+  const normalizedPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
+  const url = `${API_BASE}${normalizedPath}`;
 
   const headers: Record<string, string> = opts.form
     ? {}

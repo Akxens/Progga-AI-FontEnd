@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { api } from "./api";
+import { API_BASE, api } from "./api";
 
 function extractModule(pathname: string): string {
   if (pathname.startsWith("/tutor")) return "tutor";
@@ -139,7 +139,7 @@ export function useActivityHeartbeat(enabled = true) {
       });
 
       const blob = new Blob([payload], { type: "application/json" });
-      navigator.sendBeacon("/api/events", blob);
+      navigator.sendBeacon(`${API_BASE}/events`, blob);
     };
 
     window.addEventListener("pagehide", onPageHide);

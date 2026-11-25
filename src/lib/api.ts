@@ -11,6 +11,8 @@ export class ApiError extends Error {
   }
 }
 
+export const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api").replace(/\/+$/, "");
+
 type Options = { method?: string; body?: unknown; form?: FormData; signal?: AbortSignal };
 
 const offline = () => new ApiError(0, "Can't reach Progga right now. Check your internet and try again.", "network");
@@ -18,8 +20,9 @@ const offline = () => new ApiError(0, "Can't reach Progga right now. Check your 
 async function send(path: string, opts: Options, accept?: string): Promise<Response> {
   const headers: Record<string, string> = opts.form ? {} : { "Content-Type": "application/json" };
   if (accept) headers.Accept = accept;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   try {
-    return await fetch(`/api${path}`, {
+    return await fetch(`${API_BASE}${normalizedPath}`, {
       method: opts.method ?? (opts.body || opts.form ? "POST" : "GET"),
       credentials: "include",
       signal: opts.signal,

@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useEngine } from "./useEngine";
+import { API_BASE } from "./api";
 
 // Read-aloud for Ask Progga: one shared <audio> element plays Progga's replies
 // in order. The first clip streams from the API (speaking starts fast); the
@@ -54,7 +55,7 @@ const MAX_BLOBS = 30;
 
 // The browser keeps clips for a day: bump `v` with backend SPEECH_TEXT and include `vk` for live voice switches.
 const speechUrl = (sessionId: string, messageId: string, vk: string) =>
-  `/api/tutor/sessions/${sessionId}/messages/${messageId}/speech?v=options-1&vk=${encodeURIComponent(vk)}`;
+  `${API_BASE}/tutor/sessions/${sessionId}/messages/${messageId}/speech?v=options-1&vk=${encodeURIComponent(vk)}`;
 
 function readStore<T>(key: string, parse: (v: string) => T | undefined, fallback: T): T {
   try {
