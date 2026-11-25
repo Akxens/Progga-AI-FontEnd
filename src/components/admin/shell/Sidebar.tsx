@@ -224,21 +224,21 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar Container */}
       <aside
         className={clsx(
-          "fixed top-0 bottom-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 shrink-0",
+          "fixed top-0 bottom-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200/90 bg-white transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 shrink-0",
           isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full",
         )}
       >
         {/* Mobile Header */}
-        <div className="flex h-14 items-center justify-between border-b border-slate-200 dark:border-slate-800 px-5 lg:hidden">
+        <div className="flex h-14 items-center justify-between border-b border-slate-200 px-5 lg:hidden">
           <Link href="/admin" onClick={onClose} className="flex items-center gap-2.5">
             <Logo size={28} />
-            <span className="font-display font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">
+            <span className="font-display font-extrabold text-sm tracking-tight text-slate-900">
               Control Centre
             </span>
           </Link>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800"
+            className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
             aria-label="Close navigation"
           >
             <X size={18} />
@@ -255,7 +255,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               "flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-colors",
               isDashboardActive
                 ? "bg-blue-600 text-white font-bold shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
             )}
           >
             <LayoutDashboard
@@ -280,8 +280,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   className={clsx(
                     "flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors cursor-pointer select-none",
                     hasActiveChild
-                      ? "text-sky-600 dark:text-sky-400 font-bold"
-                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
+                      ? "text-sky-600 font-bold"
+                      : "text-slate-700 hover:bg-slate-50 hover:text-slate-900",
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -289,13 +289,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       size={16}
                       className={clsx(
                         "shrink-0",
-                        hasActiveChild ? "text-sky-600 dark:text-sky-400" : "text-slate-500 dark:text-slate-400",
+                        hasActiveChild ? "text-sky-600" : "text-slate-500",
                       )}
                     />
                     <span className="truncate">{section.label}</span>
                   </div>
 
-                  <span className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-2">
+                  <span className="text-slate-400 hover:text-slate-600 ml-2">
                     {isOpenSection ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                   </span>
                 </button>
@@ -315,15 +315,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                           className={clsx(
                             "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition-colors",
                             active
-                              ? "bg-sky-100/70 text-sky-600 dark:bg-sky-950/60 dark:text-sky-300 font-bold shadow-2xs"
-                              : "text-slate-600 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white",
+                              ? "bg-sky-100/70 text-sky-600 font-bold shadow-2xs"
+                              : "text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900",
                           )}
                         >
                           <ChildIcon
                             size={15}
                             className={clsx(
                               "shrink-0",
-                              active ? "text-sky-600 dark:text-sky-400" : "text-slate-400",
+                              active ? "text-sky-600" : "text-slate-400",
                             )}
                           />
                           <span className="truncate">{child.label}</span>

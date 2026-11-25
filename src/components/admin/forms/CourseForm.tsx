@@ -196,8 +196,8 @@ export function CourseForm({ mode, id }: CourseFormProps) {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-44 bg-slate-100 dark:bg-slate-800 rounded-2xl border" />
-        <div className="h-96 bg-slate-100 dark:bg-slate-800 rounded-2xl border" />
+        <div className="h-44 bg-slate-100  rounded-2xl border" />
+        <div className="h-96 bg-slate-100  rounded-2xl border" />
       </div>
     );
   }
@@ -216,49 +216,49 @@ export function CourseForm({ mode, id }: CourseFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 pb-20">
       {/* Header Banner matching Course Detail */}
-      <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200/90  bg-white  p-6 shadow-xs">
         <NewCourseIllustration />
 
         <div className="relative z-10 max-w-2xl space-y-3">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 ">
             <Home size={13} className="text-slate-400" />
-            <Link href="/admin" className="hover:text-slate-800 dark:hover:text-slate-200">
+            <Link href="/admin" className="hover:text-slate-800 :text-slate-200">
               Admin
             </Link>
             <span>›</span>
-            <Link href="/admin/courses" className="hover:text-slate-800 dark:hover:text-slate-200">
+            <Link href="/admin/courses" className="hover:text-slate-800 :text-slate-200">
               Courses
             </Link>
             <span>›</span>
-            <span className="text-slate-700 dark:text-slate-300 font-semibold">
+            <span className="text-slate-700  font-semibold">
               {mode === "create" ? "New Course" : "Edit Metadata"}
             </span>
           </div>
 
           {/* Title & Subtitle */}
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 ">
               {mode === "create" ? "Create New Course" : `Edit ${formData.title || "Course"}`}
             </h1>
-            <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm font-medium text-slate-500  mt-1">
               Configure course syllabus, curriculum details, grade level and publishing state.
             </p>
           </div>
 
           {/* Badges Row */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/80">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700   border border-sky-200/80 ">
               <BookOpen size={12} className="text-sky-600" />
               NCTB Curriculum
             </span>
 
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700   border border-slate-200 ">
               <Layers size={12} className="text-slate-500" />
               Class {formData.grade}
             </span>
 
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 capitalize">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700   border border-emerald-200/80  capitalize">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               {formData.status}
             </span>
@@ -270,7 +270,7 @@ export function CourseForm({ mode, id }: CourseFormProps) {
           <button
             type="button"
             onClick={() => router.push(mode === "create" ? "/admin/courses" : `/admin/courses/${id}`)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-200  bg-white  text-slate-700  rounded-xl text-xs font-semibold hover:bg-slate-50 :bg-slate-700/60 transition-colors shadow-xs"
           >
             <X size={13} />
             <span>Cancel</span>
@@ -298,17 +298,17 @@ export function CourseForm({ mode, id }: CourseFormProps) {
         {/* Left 2 Cols: Course Info & Academic Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Card 1: Course Info */}
-          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-5">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl border border-slate-200/80  bg-white  p-6 shadow-xs space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 ">
               <BookOpen className="w-4 h-4 text-sky-600" />
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-bold text-slate-900 ">
                 Course Identification & Titles
               </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700  mb-1.5">
                   Course Title (English) <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -317,12 +317,12 @@ export function CourseForm({ mode, id }: CourseFormProps) {
                   placeholder="e.g. General Mathematics"
                   value={formData.title}
                   onChange={(e) => handleChange("title", e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200  bg-slate-50/50  text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700  mb-1.5">
                   Course Title (Bangla)
                 </label>
                 <input
@@ -330,21 +330,21 @@ export function CourseForm({ mode, id }: CourseFormProps) {
                   placeholder="যেমন: সাধারণ গণিত"
                   value={formData.titleBn}
                   onChange={(e) => handleChange("titleBn", e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200  bg-slate-50/50  text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700  mb-1.5">
                   Class / Grade Level <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={formData.grade}
                   disabled={mode === "edit"}
                   onChange={(e) => handleChange("grade", e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200  bg-slate-50/50  text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
                 >
                   <option value="6">Class 6 (৬ষ্ঠ শ্রেণি)</option>
                   <option value="7">Class 7 (৭ম শ্রেণি)</option>
@@ -357,14 +357,14 @@ export function CourseForm({ mode, id }: CourseFormProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700  mb-1.5">
                   Subject Domain <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={formData.subjectId}
                   disabled={mode === "edit"}
                   onChange={(e) => handleChange("subjectId", e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200  bg-slate-50/50  text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
                 >
                   {subjects.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -376,7 +376,7 @@ export function CourseForm({ mode, id }: CourseFormProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700  mb-1.5">
                 NCTB Textbook Reference
               </label>
               <input
@@ -384,22 +384,22 @@ export function CourseForm({ mode, id }: CourseFormProps) {
                 placeholder="e.g. NCTB Mathematics (Class 9-10), 2026 Edition"
                 value={formData.book}
                 onChange={(e) => handleChange("book", e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200  bg-slate-50/50  text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
               />
             </div>
           </div>
 
           {/* Card 2: Syllabus Description */}
-          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl border border-slate-200/80  bg-white  p-6 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 ">
               <FileText className="w-4 h-4 text-sky-600" />
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-bold text-slate-900 ">
                 Course Scope & Overview
               </h2>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700  mb-1.5">
                 Description / Learning Objectives
               </label>
               <textarea
@@ -407,7 +407,7 @@ export function CourseForm({ mode, id }: CourseFormProps) {
                 placeholder="Write a clear overview of the course syllabus, key competencies, and target examinations..."
                 value={formData.description}
                 onChange={(e) => handleChange("description", e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/60 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200  bg-slate-50/50  text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
               />
             </div>
           </div>
@@ -416,10 +416,10 @@ export function CourseForm({ mode, id }: CourseFormProps) {
         {/* Right 1 Col: Publishing & Summary */}
         <div className="space-y-6">
           {/* Card 3: Publishing State */}
-          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs space-y-5">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl border border-slate-200/80  bg-white  p-6 shadow-xs space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-slate-100 ">
               <Sparkles className="w-4 h-4 text-sky-600" />
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-bold text-slate-900 ">
                 Publishing Status
               </h2>
             </div>
@@ -449,8 +449,8 @@ export function CourseForm({ mode, id }: CourseFormProps) {
                   key={opt.id}
                   className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
                     formData.status === opt.id
-                      ? "border-sky-500 bg-sky-50/50 dark:bg-sky-950/30"
-                      : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                      ? "border-sky-500 bg-sky-50/50 "
+                      : "border-slate-200  hover:bg-slate-50 :bg-slate-800/40"
                   }`}
                 >
                   <input
@@ -462,13 +462,13 @@ export function CourseForm({ mode, id }: CourseFormProps) {
                     className="mt-0.5 text-sky-600 focus:ring-sky-500"
                   />
                   <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <div className="text-xs font-bold text-slate-900  flex items-center gap-1.5">
                       <span>{opt.title}</span>
                       <span className={`text-[10px] font-semibold px-2 py-0.2 rounded-full border ${opt.badge}`}>
                         {opt.id}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500  mt-0.5">
                       {opt.desc}
                     </p>
                   </div>
@@ -478,12 +478,12 @@ export function CourseForm({ mode, id }: CourseFormProps) {
           </div>
 
           {/* Card 4: Curriculum Standards */}
-          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-br from-sky-50/50 to-white dark:from-slate-900 dark:to-slate-900 p-5 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
+          <div className="rounded-2xl border border-slate-200/80  bg-gradient-to-br from-sky-50/50 to-white   p-5 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-800 ">
               <CheckCircle size={15} className="text-sky-600" />
               <span>NCTB Standards Compliance</span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-500  leading-relaxed">
               New courses align with the National Curriculum and Textbook Board (NCTB) Bangladesh curriculum structure.
               After saving, you can create chapters and link interactive video topics.
             </p>
@@ -492,7 +492,7 @@ export function CourseForm({ mode, id }: CourseFormProps) {
       </div>
 
       {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-6 py-3 shadow-lg lg:left-64">
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200/90  bg-white/95  backdrop-blur px-6 py-3 shadow-lg lg:left-64">
         <div className="flex w-full items-center justify-between gap-4">
           <div className="text-xs text-slate-500 font-medium hidden sm:block">
             {mode === "create" ? "Ready to add new course specification" : `Editing ${formData.title || "course"}`}
@@ -502,7 +502,7 @@ export function CourseForm({ mode, id }: CourseFormProps) {
             <button
               type="button"
               onClick={() => router.push(mode === "create" ? "/admin/courses" : `/admin/courses/${id}`)}
-              className="px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors"
+              className="px-4 py-2 border border-slate-200  bg-white  text-slate-700  rounded-xl text-xs font-semibold hover:bg-slate-50 :bg-slate-700/60 transition-colors"
             >
               Cancel
             </button>

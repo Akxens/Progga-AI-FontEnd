@@ -471,14 +471,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
   if (loading || !course) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-44 bg-slate-100 dark:bg-slate-800 rounded-2xl border" />
+        <div className="h-44 bg-slate-100  rounded-2xl border" />
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl border" />
-          <div className="h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl border" />
-          <div className="h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl border" />
-          <div className="h-20 bg-slate-100 dark:bg-slate-800 rounded-2xl border" />
+          <div className="h-20 bg-slate-100  rounded-2xl border" />
+          <div className="h-20 bg-slate-100  rounded-2xl border" />
+          <div className="h-20 bg-slate-100  rounded-2xl border" />
+          <div className="h-20 bg-slate-100  rounded-2xl border" />
         </div>
-        <div className="h-96 bg-slate-100 dark:bg-slate-800 rounded-2xl border" />
+        <div className="h-96 bg-slate-100  rounded-2xl border" />
       </div>
     );
   }
@@ -495,32 +495,32 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
   return (
     <div className="space-y-6">
       {/* Top Banner with 3D Illustration matching Mockup */}
-      <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200/90  bg-white  p-6 shadow-xs">
         {/* Decorative 3D math geometry vector artwork */}
         <CourseHeaderIllustration />
 
         <div className="relative z-10 max-w-2xl space-y-3">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 ">
             <Home size={13} className="text-slate-400" />
-            <Link href="/admin" className="hover:text-slate-800 dark:hover:text-slate-200">
+            <Link href="/admin" className="hover:text-slate-800 :text-slate-200">
               Admin
             </Link>
             <span>›</span>
-            <Link href="/admin/courses" className="hover:text-slate-800 dark:hover:text-slate-200">
+            <Link href="/admin/courses" className="hover:text-slate-800 :text-slate-200">
               Courses
             </Link>
             <span>›</span>
-            <span className="text-slate-700 dark:text-slate-300 font-semibold truncate">{course.title}</span>
+            <span className="text-slate-700  font-semibold truncate">{course.title}</span>
           </div>
 
           {/* Title & Subtitle */}
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 ">
               {course.title}
             </h1>
             {course.titleBn && (
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-sm font-medium text-slate-500  mt-0.5">
                 {course.titleBn}
               </p>
             )}
@@ -528,16 +528,16 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
           {/* Badges Row */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/80">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700   border border-sky-200/80 ">
               <BookOpen size={12} className="text-sky-600" />
               Class {course.grade}
             </span>
 
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700   border border-slate-200 ">
               {course.curriculum || "NCTB Curriculum"}
             </span>
 
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 capitalize">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700   border border-emerald-200/80  capitalize">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               {course.status || "Draft"}
             </span>
@@ -548,7 +548,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
         <div className="relative z-10 flex flex-wrap items-center gap-2 mt-5 sm:mt-0 sm:absolute sm:top-6 sm:right-6">
           <Link
             href={`/admin/courses/${id}/edit`}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-200  bg-white  text-slate-700  rounded-xl text-xs font-semibold hover:bg-slate-50 :bg-slate-700/60 transition-colors shadow-xs"
           >
             <Edit3 size={13} />
             <span>Edit Metadata</span>
@@ -556,7 +556,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
           <button
             onClick={handleSubmitForReview}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-sky-400/80 dark:border-sky-600 bg-sky-50/60 dark:bg-sky-950/40 text-sky-600 dark:text-sky-300 rounded-xl text-xs font-semibold hover:bg-sky-100 dark:hover:bg-sky-900/40 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-sky-400/80  bg-sky-50/60  text-sky-600  rounded-xl text-xs font-semibold hover:bg-sky-100 :bg-sky-900/40 transition-colors shadow-xs"
           >
             <Send size={13} />
             <span>Submit for Review</span>
@@ -575,52 +575,52 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       {/* 4 Stat Cards Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Class / Grade */}
-        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400 flex items-center justify-center flex-shrink-0 border border-sky-100/60 dark:border-sky-900/40">
+        <div className="rounded-2xl border border-slate-200/80  bg-white  p-4 shadow-xs flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-sky-50 text-sky-600   flex items-center justify-center flex-shrink-0 border border-sky-100/60 ">
             <BookOpen size={20} />
           </div>
           <div>
-            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Class / Grade</div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
+            <div className="text-xs font-medium text-slate-500 ">Class / Grade</div>
+            <div className="text-lg font-bold text-slate-900  mt-0.5">
               Class {course.grade}
             </div>
           </div>
         </div>
 
         {/* Card 2: Chapters */}
-        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 flex items-center justify-center flex-shrink-0 border border-indigo-100/60 dark:border-indigo-900/40">
+        <div className="rounded-2xl border border-slate-200/80  bg-white  p-4 shadow-xs flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600   flex items-center justify-center flex-shrink-0 border border-indigo-100/60 ">
             <Layers size={20} />
           </div>
           <div>
-            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Chapters</div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
+            <div className="text-xs font-medium text-slate-500 ">Chapters</div>
+            <div className="text-lg font-bold text-slate-900  mt-0.5">
               {course.chapters?.length || 17}
             </div>
           </div>
         </div>
 
         {/* Card 3: Lessons */}
-        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 border border-emerald-100/60 dark:border-emerald-900/40">
+        <div className="rounded-2xl border border-slate-200/80  bg-white  p-4 shadow-xs flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600   flex items-center justify-center flex-shrink-0 border border-emerald-100/60 ">
             <Video size={20} />
           </div>
           <div>
-            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Lessons</div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
+            <div className="text-xs font-medium text-slate-500 ">Lessons</div>
+            <div className="text-lg font-bold text-slate-900  mt-0.5">
               {totalLessons || 49}
             </div>
           </div>
         </div>
 
         {/* Card 4: Video Content */}
-        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 flex items-center justify-center flex-shrink-0 border border-amber-100/60 dark:border-amber-900/40">
+        <div className="rounded-2xl border border-slate-200/80  bg-white  p-4 shadow-xs flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600   flex items-center justify-center flex-shrink-0 border border-amber-100/60 ">
             <Clock size={20} />
           </div>
           <div>
-            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">Video Content</div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
+            <div className="text-xs font-medium text-slate-500 ">Video Content</div>
+            <div className="text-lg font-bold text-slate-900  mt-0.5">
               {totalVideoMins} min
             </div>
           </div>
@@ -628,14 +628,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-slate-200 dark:border-slate-800">
+      <div className="border-b border-slate-200 ">
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setActiveTab("outline")}
             className={`flex items-center gap-2 py-3 px-1 border-b-2 text-sm font-semibold transition-colors cursor-pointer ${
               activeTab === "outline"
-                ? "border-sky-500 text-sky-600 dark:text-sky-400"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                ? "border-sky-500 text-sky-600 "
+                : "border-transparent text-slate-500 hover:text-slate-700  :text-slate-200"
             }`}
           >
             <BookOpen size={16} />
@@ -646,8 +646,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             onClick={() => setActiveTab("overview")}
             className={`flex items-center gap-2 py-3 px-1 border-b-2 text-sm font-semibold transition-colors cursor-pointer ${
               activeTab === "overview"
-                ? "border-sky-500 text-sky-600 dark:text-sky-400"
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                ? "border-sky-500 text-sky-600 "
+                : "border-transparent text-slate-500 hover:text-slate-700  :text-slate-200"
             }`}
           >
             <Info size={16} />
@@ -658,12 +658,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
       {/* Tab: Outline */}
       {activeTab === "outline" && (
-        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="rounded-2xl border border-slate-200/80  bg-white  p-5 sm:p-6 shadow-xs space-y-4">
           {/* Outline Box Header */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-slate-100 ">
             <div className="flex items-center gap-2">
-              <Layers className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              <Layers className="w-5 h-5 text-slate-700 " />
+              <h2 className="text-base font-bold text-slate-900 ">
                 Course Chapters & Video Lessons
               </h2>
             </div>
@@ -671,7 +671,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             <div className="flex items-center gap-3">
               <button
                 onClick={expandAll}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900  :text-slate-200 cursor-pointer"
               >
                 <Maximize2 size={13} />
                 <span>Expand All</span>
@@ -679,7 +679,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
               <button
                 onClick={collapseAll}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900  :text-slate-200 cursor-pointer"
               >
                 <Minimize2 size={13} />
                 <span>Collapse All</span>
@@ -687,7 +687,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
               <button
                 onClick={() => setIsChapterModalOpen(true)}
-                className="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                className="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700   rounded-lg text-xs font-bold transition-colors cursor-pointer"
               >
                 <Plus size={13} />
                 <span>Add Chapter</span>
@@ -697,9 +697,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
           {/* Chapters List */}
           {(!course.chapters || course.chapters.length === 0) ? (
-            <div className="text-center py-12 border-2 border-dashed rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
+            <div className="text-center py-12 border-2 border-dashed rounded-xl bg-slate-50/50 ">
               <BookOpen className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-              <h3 className="font-semibold text-slate-800 dark:text-slate-200">No chapters yet</h3>
+              <h3 className="font-semibold text-slate-800 ">No chapters yet</h3>
               <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                 Begin structuring the course syllabus by adding the first chapter.
               </p>
@@ -726,38 +726,38 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                 return (
                   <div
                     key={chapter.id}
-                    className="border border-slate-200/90 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden shadow-2xs transition-all"
+                    className="border border-slate-200/90  rounded-xl bg-white  overflow-hidden shadow-2xs transition-all"
                   >
                     {/* Chapter Header Row */}
                     <div
                       onClick={() => toggleChapter(chapter.id)}
                       className={`p-3.5 sm:px-4 flex items-center justify-between cursor-pointer select-none transition-colors ${
                         isExpanded
-                          ? "bg-sky-50/40 dark:bg-sky-950/20 border-b border-slate-200/70 dark:border-slate-800"
-                          : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                          ? "bg-sky-50/40  border-b border-slate-200/70 "
+                          : "hover:bg-slate-50 :bg-slate-800/40"
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Expand/Collapse Chevron */}
                         <button
                           type="button"
-                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex-shrink-0"
+                          className="text-slate-400 hover:text-slate-600 :text-slate-200 flex-shrink-0"
                         >
                           {isExpanded ? <ChevronDown size={17} /> : <ChevronRight size={17} />}
                         </button>
 
                         {/* Chapter Badge */}
-                        <span className="font-bold text-xs px-2.5 py-0.5 rounded bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 flex-shrink-0">
+                        <span className="font-bold text-xs px-2.5 py-0.5 rounded bg-sky-100 text-sky-700   flex-shrink-0">
                           Chapter {chapter.number}
                         </span>
 
                         {/* Title & Subtitle */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 truncate">
-                          <span className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                          <span className="font-bold text-sm text-slate-900  truncate">
                             {chapter.title}
                           </span>
                           {chapter.titleBn && (
-                            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                            <span className="text-xs text-slate-500  font-medium">
                               {chapter.titleBn}
                             </span>
                           )}
@@ -769,22 +769,22 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                         className="flex items-center gap-3 sm:gap-4 flex-shrink-0"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span className="hidden sm:inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="hidden sm:inline-flex items-center gap-1 text-xs text-slate-500 ">
                           <Video size={13} className="text-slate-400" />
                           <span>{chapterLessons.length} Lessons</span>
                         </span>
 
-                        <span className="hidden sm:inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="hidden sm:inline-flex items-center gap-1 text-xs text-slate-500 ">
                           <Clock size={13} className="text-slate-400" />
                           <span>{chapterDurationMins} min</span>
                         </span>
 
-                        <span className="hidden md:inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="hidden md:inline-flex items-center gap-1 text-xs text-slate-500 ">
                           <FileText size={13} className="text-slate-400" />
                           <span>{chapterResources} Resources</span>
                         </span>
 
-                        <span className="px-2 py-0.5 rounded text-xs font-semibold text-sky-600 bg-sky-50 dark:bg-sky-950/50 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/60">
+                        <span className="px-2 py-0.5 rounded text-xs font-semibold text-sky-600 bg-sky-50   border border-sky-200/60 ">
                           {chapter.status || "Draft"}
                         </span>
 
@@ -795,7 +795,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                             setSelectedChapterId(chapter.id);
                             setIsLessonModalOpen(true);
                           }}
-                          className="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          className="p-1 rounded text-slate-400 hover:text-slate-700 :text-slate-200 hover:bg-slate-100 :bg-slate-800"
                           title="Add Lesson"
                         >
                           <MoreVertical size={15} />
@@ -804,7 +804,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                         <button
                           type="button"
                           onClick={() => toggleChapter(chapter.id)}
-                          className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                          className="text-slate-400 hover:text-slate-700 :text-slate-200"
                         >
                           {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
@@ -813,7 +813,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
                     {/* Lessons list when expanded */}
                     {isExpanded && (
-                      <div className="p-3 sm:p-4 bg-white dark:bg-slate-900 space-y-2.5">
+                      <div className="p-3 sm:p-4 bg-white  space-y-2.5">
                         {chapterLessons.length === 0 ? (
                           <div className="py-4 text-center">
                             <p className="text-xs text-slate-400 italic">
@@ -824,7 +824,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                                 setSelectedChapterId(chapter.id);
                                 setIsLessonModalOpen(true);
                               }}
-                              className="mt-2 inline-flex items-center gap-1 px-3 py-1 bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300 rounded text-xs font-semibold"
+                              className="mt-2 inline-flex items-center gap-1 px-3 py-1 bg-sky-50 text-sky-700   rounded text-xs font-semibold"
                             >
                               <Plus size={12} />
                               Add Lesson
@@ -839,7 +839,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                             return (
                               <div
                                 key={lesson.id}
-                                className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors gap-3"
+                                className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 sm:p-3 rounded-xl border border-slate-100  bg-white  hover:bg-slate-50/70 :bg-slate-800/40 transition-colors gap-3"
                               >
                                 {/* Left Section: Index, Preview Thumbnail, Title & Chips */}
                                 <div className="flex items-center gap-3 min-w-0">
@@ -852,10 +852,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
                                   {/* Title & Metadata chips */}
                                   <div className="min-w-0 space-y-1">
-                                    <div className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                                    <div className="text-sm font-bold text-slate-900  truncate">
                                       {lesson.title}
                                     </div>
-                                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 ">
                                       <span className="inline-flex items-center gap-1">
                                         <Video size={12} className="text-slate-400" />
                                         <span>Video ({lessonDurationMin} min)</span>
@@ -876,7 +876,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
                                 {/* Right Section: Status badge & Action buttons */}
                                 <div className="flex items-center justify-end gap-2 sm:gap-3 flex-shrink-0">
-                                  <span className="px-2 py-0.5 rounded text-xs font-semibold text-sky-600 bg-sky-50 dark:bg-sky-950/50 dark:text-sky-300 border border-sky-200/60 dark:border-sky-800/60">
+                                  <span className="px-2 py-0.5 rounded text-xs font-semibold text-sky-600 bg-sky-50   border border-sky-200/60 ">
                                     {lesson.status || "Draft"}
                                   </span>
 
@@ -884,7 +884,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                                   <div className="flex items-center gap-1 text-slate-400">
                                     <button
                                       type="button"
-                                      className="p-1.5 rounded-lg hover:text-sky-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                      className="p-1.5 rounded-lg hover:text-sky-600 hover:bg-slate-100 :bg-slate-800 transition-colors"
                                       title="Edit Lesson"
                                       onClick={() => toast(`Editing lesson: ${lesson.title}`, "✎", "brand")}
                                     >
@@ -893,7 +893,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
                                     <button
                                       type="button"
-                                      className="p-1.5 rounded-lg hover:text-sky-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                      className="p-1.5 rounded-lg hover:text-sky-600 hover:bg-slate-100 :bg-slate-800 transition-colors"
                                       title="Duplicate Lesson"
                                       onClick={() => toast("Lesson duplicated", "⎘", "mint")}
                                     >
@@ -902,7 +902,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
                                     <button
                                       type="button"
-                                      className="p-1.5 rounded-lg hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                                      className="p-1.5 rounded-lg hover:text-rose-600 hover:bg-rose-50 :bg-rose-950/40 transition-colors"
                                       title="Delete Lesson"
                                       onClick={() => toast("Delete confirmation required", "⚠️", "coral")}
                                     >
@@ -911,7 +911,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
                                     <button
                                       type="button"
-                                      className="p-1.5 rounded-lg hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                      className="p-1.5 rounded-lg hover:text-slate-700 :text-slate-200 hover:bg-slate-100 :bg-slate-800 transition-colors"
                                       title="More Options"
                                     >
                                       <MoreVertical size={14} />
@@ -935,8 +935,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       {/* Tab: Overview (Course Metadata) */}
       {activeTab === "overview" && (
         <div className="space-y-4">
-          <div className="border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 bg-white dark:bg-slate-900 shadow-xs">
-            <h2 className="text-base font-bold text-slate-900 dark:text-white mb-4">Course Specification</h2>
+          <div className="border border-slate-200/80  rounded-2xl p-6 bg-white  shadow-xs">
+            <h2 className="text-base font-bold text-slate-900  mb-4">Course Specification</h2>
             <KeyValueGrid
               items={[
                 { label: "Course Code", value: course.code || `CRS-${course.id.slice(-6)}` },
@@ -959,56 +959,56 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       {/* Add Chapter Modal */}
       {isChapterModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Add Chapter to Course</h3>
+          <div className="bg-white  border border-slate-200  rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold text-slate-900 ">Add Chapter to Course</h3>
             <form onSubmit={handleCreateChapter} className="space-y-3">
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Chapter Number</label>
+                <label className="text-xs font-semibold text-slate-700 ">Chapter Number</label>
                 <input
                   type="number"
                   min="1"
                   value={chapterNumber}
                   onChange={(e) => setChapterNumber(Number(e.target.value))}
                   required
-                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Title (English)</label>
+                <label className="text-xs font-semibold text-slate-700 ">Title (English)</label>
                 <input
                   type="text"
                   placeholder="e.g. Trigonometry"
                   value={chapterTitle}
                   onChange={(e) => setChapterTitle(e.target.value)}
                   required
-                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Title (Bangla)</label>
+                <label className="text-xs font-semibold text-slate-700 ">Title (Bangla)</label>
                 <input
                   type="text"
                   placeholder="যেমন: ত্রিকোণমিতি"
                   value={chapterTitleBn}
                   onChange={(e) => setChapterTitleBn(e.target.value)}
-                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Chapter Summary</label>
+                <label className="text-xs font-semibold text-slate-700 ">Chapter Summary</label>
                 <textarea
                   placeholder="Brief synopsis of chapter topics and learning goals..."
                   value={chapterSummary}
                   onChange={(e) => setChapterSummary(e.target.value)}
                   rows={2}
-                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsChapterModalOpen(false)}
-                  className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+                  className="px-3 py-1.5 border border-slate-200  rounded-xl text-xs font-semibold text-slate-600  hover:bg-slate-50"
                 >
                   Cancel
                 </button>
@@ -1027,70 +1027,70 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       {/* Add Lesson Modal */}
       {isLessonModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Add Lesson Topic to Chapter</h3>
+          <div className="bg-white  border border-slate-200  rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold text-slate-900 ">Add Lesson Topic to Chapter</h3>
             <form onSubmit={handleCreateLesson} className="space-y-3">
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Lesson Title</label>
+                <label className="text-xs font-semibold text-slate-700 ">Lesson Title</label>
                 <input
                   type="text"
                   placeholder="e.g. Trigonometric Ratios"
                   value={lessonTitle}
                   onChange={(e) => setLessonTitle(e.target.value)}
                   required
-                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">YouTube Video URL</label>
+                <label className="text-xs font-semibold text-slate-700 ">YouTube Video URL</label>
                 <input
                   type="url"
                   placeholder="https://www.youtube.com/watch?v=..."
                   value={lessonVideoUrl}
                   onChange={(e) => setLessonVideoUrl(e.target.value)}
                   required
-                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Video Duration (seconds)</label>
+                  <label className="text-xs font-semibold text-slate-700 ">Video Duration (seconds)</label>
                   <input
                     type="number"
                     min="10"
                     value={lessonDuration}
                     onChange={(e) => setLessonDuration(Number(e.target.value))}
                     required
-                    className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                    className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Reading Time (min)</label>
+                  <label className="text-xs font-semibold text-slate-700 ">Reading Time (min)</label>
                   <input
                     type="number"
                     min="1"
                     value={lessonReadingMin}
                     onChange={(e) => setLessonReadingMin(Number(e.target.value))}
                     required
-                    className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                    className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                   />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Written Notes / Topic Summary</label>
+                <label className="text-xs font-semibold text-slate-700 ">Written Notes / Topic Summary</label>
                 <textarea
                   placeholder="Markdown or explanatory text for the lesson..."
                   value={lessonBody}
                   onChange={(e) => setLessonBody(e.target.value)}
                   rows={3}
-                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  className="w-full mt-1 px-3 py-2 border rounded-xl text-xs bg-slate-50  border-slate-200 "
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsLessonModalOpen(false)}
-                  className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+                  className="px-3 py-1.5 border border-slate-200  rounded-xl text-xs font-semibold text-slate-600  hover:bg-slate-50"
                 >
                   Cancel
                 </button>

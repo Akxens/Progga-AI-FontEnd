@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* Decouple dark mode from system prefers-color-scheme so the app stays in light mode */
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light;
+  }
+}
+
 /* ── Progga design tokens ─────────────────────────────────
    Playful palette (brand blue + banana + mint) on a warm cream canvas.
    Sleek comes from restraint: soft shadows, generous radius, calm spacing. */
