@@ -322,13 +322,8 @@ function LeagueRoad({ data, onPick }: { data: ArenaHome; onPick: (family: League
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: fi * 0.04, duration: 0.35 }}
-              // tap a league to see who's in it
-              role="button"
-              tabIndex={0}
-              onClick={() => onPick(family)}
-              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onPick(family))}
               className={clsx(
-                "group relative flex cursor-pointer flex-col items-center rounded-3xl border-2 px-2 pb-3 pt-4 text-center transition-transform",
+                "group relative rounded-3xl border-2 px-2 pb-3 pt-4 transition-transform",
                 here ? "border-transparent" : done ? "border-line bg-white hover:-translate-y-1" : "border-dashed border-line bg-cream/70",
               )}
               style={
@@ -337,42 +332,48 @@ function LeagueRoad({ data, onPick }: { data: ArenaHome; onPick: (family: League
                   : undefined
               }
             >
-              {(here || upNext) && (
-                <span className="absolute -top-3 rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wide text-white shadow" style={{ background: color }}>
-                  {here ? t("battle.youAreHere") : t("battle.roadNext")}
-                </span>
-              )}
-              {done && (
-                <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-mint-500 text-white shadow-soft">
-                  <Check size={14} strokeWidth={3} />
-                </span>
-              )}
-              {locked && !upNext && (
-                <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-ink-muted shadow-soft">
-                  <Lock size={12} strokeWidth={2.6} />
-                </span>
-              )}
-              <motion.div animate={here ? { y: [0, -5, 0] } : undefined} transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}>
-                <LeagueBadge family={family} division={shown.division} size={here ? 92 : 76} glow={here} dim={locked && !upNext} className="transition-transform duration-200 group-hover:scale-105" />
-              </motion.div>
-              <p className="mt-2 font-display text-base font-extrabold leading-tight" style={here ? { color } : undefined}>
-                {tx(`battle.families.${family}`, family)}
-              </p>
-              <p className="mt-0.5 flex items-center gap-1 text-xs font-bold text-ink-muted">
-                <TrophyIcon size={12} /> {n(divisions[0].min)}+
-              </p>
-              <div className="mt-3 flex w-full max-w-[124px] gap-1">
-                {divisions.map((d) => {
-                  const i = data.leagues.indexOf(d);
-                  const reached = i <= currentIndex;
-                  return (
-                    <div key={d.id} className="flex-1" title={`${leagueName(d.family, d.division)} · ${n(d.min)}`}>
-                      <div className={clsx("h-1.5 rounded-full", i === currentIndex && "animate-pulse")} style={{ background: reached ? color : "var(--color-line)" }} />
-                      <p className={clsx("mt-1 font-serif text-[10px] font-black", reached ? "text-ink-soft" : "text-ink-muted/60")}>{ROMAN[d.division]}</p>
-                    </div>
-                  );
-                })}
-              </div>
+              <button
+                type="button"
+                onClick={() => onPick(family)}
+                className="flex w-full cursor-pointer flex-col items-center rounded-2xl text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                {(here || upNext) && (
+                  <span className="absolute -top-3 rounded-full px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wide text-white shadow" style={{ background: color }}>
+                    {here ? t("battle.youAreHere") : t("battle.roadNext")}
+                  </span>
+                )}
+                {done && (
+                  <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-mint-500 text-white shadow-soft">
+                    <Check size={14} strokeWidth={3} />
+                  </span>
+                )}
+                {locked && !upNext && (
+                  <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-ink-muted shadow-soft">
+                    <Lock size={12} strokeWidth={2.6} />
+                  </span>
+                )}
+                <motion.div animate={here ? { y: [0, -5, 0] } : undefined} transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}>
+                  <LeagueBadge family={family} division={shown.division} size={here ? 92 : 76} glow={here} dim={locked && !upNext} className="transition-transform duration-200 group-hover:scale-105" />
+                </motion.div>
+                <p className="mt-2 font-display text-base font-extrabold leading-tight" style={here ? { color } : undefined}>
+                  {tx(`battle.families.${family}`, family)}
+                </p>
+                <p className="mt-0.5 flex items-center gap-1 text-xs font-bold text-ink-muted">
+                  <TrophyIcon size={12} /> {n(divisions[0].min)}+
+                </p>
+                <div className="mt-3 flex w-full max-w-[124px] gap-1">
+                  {divisions.map((d) => {
+                    const i = data.leagues.indexOf(d);
+                    const reached = i <= currentIndex;
+                    return (
+                      <div key={d.id} className="flex-1" title={`${leagueName(d.family, d.division)} · ${n(d.min)}`}>
+                        <div className={clsx("h-1.5 rounded-full", i === currentIndex && "animate-pulse")} style={{ background: reached ? color : "var(--color-line)" }} />
+                        <p className={clsx("mt-1 font-serif text-[10px] font-black", reached ? "text-ink-soft" : "text-ink-muted/60")}>{ROMAN[d.division]}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </button>
             </motion.li>
           );
         })}

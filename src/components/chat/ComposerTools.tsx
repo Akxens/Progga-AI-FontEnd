@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { ChevronDown, Cpu, ImagePlus, X } from "lucide-react";
 import { useT } from "@/i18n";
 import { useEngineChoice } from "@/lib/useEngine";
@@ -35,10 +36,16 @@ export function EnginePicker({ disabled }: { disabled?: boolean }) {
   );
 }
 
-export function PhotoButton({ onPick, disabled }: { onPick: (f: File | undefined) => void; disabled?: boolean }) {
+export function PhotoButton({ onPick, disabled, highlight }: { onPick: (f: File | undefined) => void; disabled?: boolean; highlight?: boolean }) {
   const { t } = useT();
   return (
-    <label className="grid h-9 w-9 cursor-pointer place-items-center rounded-full text-ink-muted transition-colors hover:bg-cream hover:text-ink" title={t("chatui.attach")}>
+    <label
+      className={clsx(
+        "grid h-9 w-9 cursor-pointer place-items-center rounded-full transition-colors hover:bg-cream hover:text-ink",
+        highlight ? "bg-brand-50 text-brand-600 ring-2 ring-brand-400" : "text-ink-muted",
+      )}
+      title={t("chatui.attach")}
+    >
       <ImagePlus size={18} />
       <input
         type="file"

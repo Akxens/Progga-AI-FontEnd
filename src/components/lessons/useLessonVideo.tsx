@@ -102,7 +102,7 @@ export function useLessonVideo(lesson: LessonDetail, saved: { watchedSec: number
     player,
     answered,
     watchedSec,
-    watchedPct: watchedSec / lesson.durationSec,
+    watchedPct: lesson.durationSec > 0 ? Math.min(1, watchedSec / lesson.durationSec) : 0,
     videoDone: watchedSec >= threshold,
     onTime,
     onEnded: () => void postProgress(lesson.durationSec),
@@ -128,7 +128,7 @@ export function CheckpointTimeline({ lesson, video }: { lesson: LessonDetail; vi
             "absolute top-1/2 grid h-5 w-5 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-white text-[10px] shadow",
             video.answered.has(c.index) ? "bg-mint-500 text-white" : "bg-banana-400",
           )}
-          style={{ left: `${(c.atSec / lesson.durationSec) * 100}%` }}
+          style={{ left: `${lesson.durationSec > 0 ? (c.atSec / lesson.durationSec) * 100 : 0}%` }}
           title={t("lessons.cpAt", { time: duration(c.atSec) })}
         >
           {video.answered.has(c.index) ? "✓" : "?"}

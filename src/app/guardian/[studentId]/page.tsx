@@ -1,8 +1,9 @@
 "use client";
 
 import clsx from "clsx";
-import { AlertTriangle, ArrowLeft, ChevronRight, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ChevronRight, ShieldCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import useSWR from "swr";
 import { ProggaBot } from "@/components/brand/ProggaBot";
@@ -17,7 +18,7 @@ import { paletteFor } from "@/lib/skins";
 import type { LevelInfo, Profile, ProfileStatus } from "@/lib/types";
 
 interface Report {
-  student: { id: string; name: string; grade: number; avatarSkin: string; photoUrl?: string | null; profile?: Profile; profileStatus?: ProfileStatus; level: LevelInfo; streak: number; bestStreak: number; dailyTutorLimit: number; badges: number };
+  student: { id: string; name: string; grade: number | null; avatarSkin: string; photoUrl?: string | null; profile?: Profile; profileStatus?: ProfileStatus; level: LevelInfo; streak: number; bestStreak: number; dailyTutorLimit: number; badges: number };
   week: { day: string; xp: number }[];
   tutor: {
     sessions: number;
@@ -43,26 +44,44 @@ const SAFETY_LABEL: Record<string, TKey> = {
 
 export default function StudentReport({ params }: { params: Promise<{ studentId: string }> }) {
   const { studentId } = use(params);
+  const router = useRouter();
   const { data, mutate } = useSWR<Report>(`/guardian/students/${studentId}/report`);
   const { toast } = useCelebrate();
-  const { t, tx, n } = useT();
+  const { t, tx, n, ui } = useT();
   const { gradeLabel, timeAgo, weekday } = useFormat();
-  const [limit, setLimit] = useState<number | null>(null);
+  const [limitInput, setLimitInput] = useState<string | null>(null);
+  const [confirmUnlink, setConfirmUnlink] = useState(false);
+  const [unlinking, setUnlinking] = useState(false);
 
   if (!data) return <PageLoader label={t("report.building")} />;
   const { student: s, tutor } = data;
   const maxXp = Math.max(10, ...data.week.map((d) => d.xp));
   const independence = tutor.independence;
   const alerts = data.safety.filter((e) => e.category === "wellbeing" || e.category === "unsafe");
+  const parsedLimit = limitInput === null ? s.dailyTutorLimit : limitInput.trim() === "" ? NaN : Number(limitInput);
+  const validLimit = Number.isInteger(parsedLimit) && parsedLimit >= 1 && parsedLimit <= 100;
 
   async function saveLimit() {
+    if (!validLimit) return;
     try {
-      await api(`/guardian/students/${studentId}/settings`, { method: "PATCH", body: { dailyTutorLimit: limit } });
+      await api(`/guardian/students/${studentId}/settings`, { method: "PATCH", body: { dailyTutorLimit: parsedLimit } });
       toast(t("report.limitSaved"), "✅", "mint");
-      setLimit(null);
+      setLimitInput(null);
       void mutate();
     } catch (e) {
       toast(errorMessage(e), "⚠️", "coral");
+    }
+  }
+
+  async function unlinkStudent() {
+    setUnlinking(true);
+    try {
+      await api(`/guardian/students/${studentId}`, { method: "DELETE" });
+      toast(ui === "bn" ? `${firstName(s.name)}-কে আনলিংক করা হয়েছে` : `Unlinked ${firstName(s.name)}`, "🔗", "brand");
+      router.push("/guardian");
+    } catch (e) {
+      toast(errorMessage(e), "⚠️", "coral");
+      setUnlinking(false);
     }
   }
 
@@ -220,9 +239,35 @@ export default function StudentReport({ params }: { params: Promise<{ studentId:
             <SectionTitle eyebrow={t("report.habits")} title={t("report.dailyLimit")} />
             <p className="text-sm text-ink-soft">{t("report.limitBody", { name: s.name.split(" ")[0] })}</p>
             <div className="mt-4 flex gap-2">
-              <input type="number" min={1} max={100} className="input w-28" value={limit ?? s.dailyTutorLimit} onChange={(e) => setLimit(Number(e.target.value))} />
-              <button className="btn-primary btn-sm" disabled={limit === null || limit === s.dailyTutorLimit} onClick={saveLimit}>{t("common.save")}</button>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                className="input w-28"
+                value={limitInput ?? String(s.dailyTutorLimit)}
+                onChange={(e) => setLimitInput(e.target.value)}
+              />
+              <button className="btn-primary btn-sm" disabled={!validLimit || parsedLimit === s.dailyTutorLimit} onClick={saveLimit}>{t("common.save")}</button>
             </div>
+          </div>
+          <div className="card flex flex-wrap items-center justify-between gap-3 p-5">
+            <span className="text-sm font-semibold text-ink-soft">
+              {ui === "bn" ? `${firstName(s.name)}-এর সাথে লিংক সরিয়ে ফেলো` : `Remove ${firstName(s.name)} from your list`}
+            </span>
+            {confirmUnlink ? (
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setConfirmUnlink(false)} disabled={unlinking} className="btn-ghost btn-sm">
+                  {ui === "bn" ? "বাতিল" : "Cancel"}
+                </button>
+                <button type="button" onClick={unlinkStudent} disabled={unlinking} className="btn-sm rounded-xl bg-coral-500 px-3 py-1.5 font-bold text-white hover:bg-coral-600">
+                  {ui === "bn" ? "নিশ্চিত করো" : "Confirm"}
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setConfirmUnlink(true)} className="btn-ghost btn-sm text-coral-600 hover:bg-coral-50">
+                <Trash2 size={15} /> {ui === "bn" ? "আনলিংক করো" : "Unlink"}
+              </button>
+            )}
           </div>
           <div className="card p-6">
             <SectionTitle eyebrow={t("report.lessonsEyebrow")} title={t("report.recentlyCompleted")} />

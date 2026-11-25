@@ -39,7 +39,11 @@ function LoginForm() {
       // A language picked on this device before signing in wins over the account's old one.
       const chosen = explicitLanguage();
       if (chosen && chosen !== user.language) {
-        user = (await api<{ user: User }>("/me", { method: "PATCH", body: { language: chosen } })).user;
+        try {
+          user = (await api<{ user: User }>("/me", { method: "PATCH", body: { language: chosen } })).user;
+        } catch {
+          // Language sync failure shouldn't block an already authenticated login session
+        }
       }
       await mutate("/auth/me", { user }, { revalidate: false });
       const next = params.get("next");

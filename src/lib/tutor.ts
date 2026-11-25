@@ -3,7 +3,14 @@ import type { PreviewMessage, StartResult, TutorMessage } from "./types";
 import { storedEngine } from "./useEngine";
 
 /** `onPreview`: show Progga's opening word by word while it's being written. */
-export function startTutorSession(question: string, subject: string, image?: File | null, lessonId?: string, onPreview?: (p: PreviewMessage[]) => void) {
+export function startTutorSession(
+  question: string,
+  subject: string,
+  image?: File | null,
+  lessonId?: string,
+  onPreview?: (p: PreviewMessage[]) => void,
+  signal?: AbortSignal,
+) {
   const form = new FormData();
   form.set("question", question);
   form.set("subject", subject);
@@ -11,7 +18,7 @@ export function startTutorSession(question: string, subject: string, image?: Fil
   if (lessonId) form.set("lessonId", lessonId);
   const engine = storedEngine();
   if (engine) form.set("engine", engine);
-  return onPreview ? apiStream<StartResult, PreviewMessage[]>("/tutor/sessions", { form }, onPreview) : api<StartResult>("/tutor/sessions", { form });
+  return onPreview ? apiStream<StartResult, PreviewMessage[]>("/tutor/sessions", { form, signal }, onPreview) : api<StartResult>("/tutor/sessions", { form, signal });
 }
 
 /** A streamed preview, shaped like a chat message so it renders exactly like the real one. */

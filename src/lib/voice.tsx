@@ -23,6 +23,9 @@ const BOOST = 3.2;
 // How much depends on the voice engine (from /health); the recorded reactions use this.
 const KID_LIFT = 1.12;
 
+/** A message to read aloud, with optional detected language for per-language playback lift. */
+export type SpeechItem = string | { id: string; lang?: "bn" | "en" };
+
 interface VoiceCtx {
   /** the backend can speak (OpenAI key configured) */
   available: boolean;
@@ -37,19 +40,21 @@ interface VoiceCtx {
   speakingId: string | null;
   loadingId: string | null;
   /** read these messages one after another (replaces anything queued), optionally after a short reaction sound */
-  speak: (sessionId: string, messageIds: string[], lead?: string) => void;
+  speak: (sessionId: string, items: SpeechItem[], lead?: string) => void;
   /** play short reaction sounds ("Mm-hmm!", "Hmm…") in order, if voice is on */
   react: (urls: string[]) => void;
   stop: () => void;
 }
 
 /** One clip to play: a message's speech (id set) or a reaction sound (id null). */
-type Clip = { id: string | null; url: string };
+type Clip = { id: string | null; url: string; lang?: "bn" | "en" };
 
 const Ctx = createContext<VoiceCtx | null>(null);
+const MAX_BLOBS = 30;
 
-// The browser keeps clips for a day: bump `v` with the backend's SPEECH_TEXT so changed speech isn't served stale.
-const speechUrl = (sessionId: string, messageId: string) => `/api/tutor/sessions/${sessionId}/messages/${messageId}/speech?v=options-1`;
+// The browser keeps clips for a day: bump `v` with backend SPEECH_TEXT and include `vk` for live voice switches.
+const speechUrl = (sessionId: string, messageId: string, vk: string) =>
+  `/api/tutor/sessions/${sessionId}/messages/${messageId}/speech?v=options-1&vk=${encodeURIComponent(vk)}`;
 
 function readStore<T>(key: string, parse: (v: string) => T | undefined, fallback: T): T {
   try {
@@ -69,7 +74,7 @@ function writeStore(key: string, value: string) {
 }
 
 export function VoiceProvider({ children, onError }: { children: React.ReactNode; onError?: () => void }) {
-  const { voice: available, voiceLift } = useEngine();
+  const { voice: available, voiceLifts, voiceKey } = useEngine();
   const [enabled, setEnabledState] = useState(false);
   const [toggles, setToggles] = useState(0);
   const [rate, setRateState] = useState<VoiceRate>(1);
@@ -81,9 +86,21 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
   const queue = useRef<Clip[]>([]);
   const blobs = useRef(new Map<string, Promise<string | null>>());
   const rateRef = useRef<VoiceRate>(1);
-  const liftRef = useRef(voiceLift);
-  liftRef.current = voiceLift;
+  const liftsRef = useRef(voiceLifts);
+  liftsRef.current = voiceLifts;
+  const activeLiftRef = useRef(voiceLifts.bn);
+  const vkRef = useRef(voiceKey);
+  vkRef.current = voiceKey;
   const generation = useRef(0); // bumps on stop/replace so stale callbacks do nothing
+
+  const clearBlobs = useCallback(() => {
+    blobs.current.forEach((p) => void p.then((u) => u && URL.revokeObjectURL(u)));
+    blobs.current.clear();
+  }, []);
+
+  useEffect(() => {
+    clearBlobs();
+  }, [voiceKey, clearBlobs]);
 
   useEffect(() => {
     setEnabledState(readStore(ENABLED_KEY, (v) => v === "1", false));
@@ -118,6 +135,13 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
   /** Downloads a clip in the background (used for everything after the first in the queue). */
   const prefetch = useCallback((url: string) => {
     if (blobs.current.has(url)) return;
+    while (blobs.current.size >= MAX_BLOBS) {
+      const oldestKey = blobs.current.keys().next().value;
+      if (!oldestKey) break;
+      const old = blobs.current.get(oldestKey);
+      blobs.current.delete(oldestKey);
+      void old?.then((u) => u && URL.revokeObjectURL(u));
+    }
     blobs.current.set(
       url,
       fetch(url, { credentials: "include" })
@@ -143,9 +167,11 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
     setLoadingId(next.id);
     const cached = blobs.current.has(next.url) ? await blobs.current.get(next.url) : null;
     if (gen !== generation.current) return;
+    const lift = next.id ? (next.lang === "en" ? liftsRef.current.en : liftsRef.current.bn) : KID_LIFT;
+    activeLiftRef.current = lift;
     el.src = cached ?? next.url;
     el.preservesPitch = false;
-    el.playbackRate = next.id ? rateRef.current * liftRef.current : KID_LIFT; // reactions ignore the speed setting
+    el.playbackRate = next.id ? rateRef.current * lift : KID_LIFT; // reactions ignore the speed setting
     el.onplaying = () => gen === generation.current && (setSpeakingId(next.id), setLoadingId(null));
     el.onended = () => gen === generation.current && void playNext();
     el.onerror = () => {
@@ -181,10 +207,15 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
   }, []);
 
   const speak = useCallback(
-    (sessionId: string, messageIds: string[], lead?: string) => {
-      if (!available || !messageIds.length) return;
+    (sessionId: string, items: SpeechItem[], lead?: string) => {
+      if (!available || !items.length) return;
       stop();
-      queue.current = [...(lead ? [{ id: null, url: lead }] : []), ...messageIds.map((id) => ({ id, url: speechUrl(sessionId, id) }))];
+      const clips: Clip[] = items.map((item) =>
+        typeof item === "string"
+          ? { id: item, url: speechUrl(sessionId, item, vkRef.current), lang: "bn" }
+          : { id: item.id, url: speechUrl(sessionId, item.id, vkRef.current), lang: item.lang ?? "bn" },
+      );
+      queue.current = [...(lead ? [{ id: null, url: lead }] : []), ...clips];
       void playNext();
     },
     [available, stop, playNext],
@@ -214,7 +245,7 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
     setRateState(r);
     rateRef.current = r;
     writeStore(RATE_KEY, String(r));
-    if (audio.current) audio.current.playbackRate = r * liftRef.current;
+    if (audio.current) audio.current.playbackRate = r * activeLiftRef.current;
   }, []);
 
   // stop talking when leaving Ask Progga; free downloaded clips
@@ -225,9 +256,9 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
       void graph.current?.close().catch(() => undefined);
       audio.current = null; // an element wired to a closed graph would stay silent
       graph.current = null;
-      blobs.current.forEach((p) => p.then((u) => u && URL.revokeObjectURL(u)));
+      clearBlobs();
     },
-    [],
+    [clearBlobs],
   );
 
   const value = useMemo<VoiceCtx>(

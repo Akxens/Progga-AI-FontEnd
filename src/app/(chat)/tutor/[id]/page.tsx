@@ -25,6 +25,7 @@ import { storedEngine } from "@/lib/useEngine";
 import { EnginePicker } from "@/components/chat/ComposerTools";
 import type { LessonCard, Palette, PreviewMessage, TutorActionResult, TutorMessage, TutorSession } from "@/lib/types";
 import { pickReaction, reactionKeyFor, type Reaction } from "@/lib/reactions";
+import { useDrawerA11y } from "@/lib/useDrawerA11y";
 import { useVoice } from "@/lib/voice";
 
 type Busy = null | "reply" | "hint" | "reveal" | "practice";
@@ -83,6 +84,8 @@ function useBotMood(session: TutorSession | undefined, busy: Busy): MoodLine | n
  * New replies come with a quick reaction ("Wow!", "Hmm, not quite…"): shown
  * always, and said out loud before the reply when voice is on.
  */
+const speechItem = (m: TutorMessage) => ({ id: m.id, lang: (/[\u0980-\u09FF]/.test(m.content) ? "bn" : "en") as "bn" | "en" });
+
 function useReadAloud(
   id: string,
   session: TutorSession | undefined,
@@ -101,20 +104,21 @@ function useReadAloud(
 
   useEffect(() => {
     if (!session || session.id !== id) return;
-    const tutorIds = session.messages.filter((m) => m.role === "tutor").map((m) => m.id);
+    const tutorMsgs = session.messages.filter((m) => m.role === "tutor");
+    const tutorIds = tutorMsgs.map((m) => m.id);
     let opening = false;
     if (seen.current === null) {
       opening = new URLSearchParams(window.location.search).has("speak");
       if (opening) window.history.replaceState(window.history.state, "", window.location.pathname);
       seen.current = new Set(opening ? [] : tutorIds);
     }
-    const fresh = tutorIds.filter((mid) => !seen.current!.has(mid));
-    fresh.forEach((mid) => seen.current!.add(mid));
+    const fresh = tutorMsgs.filter((m) => !seen.current!.has(m.id));
+    fresh.forEach((m) => seen.current!.add(m.id));
     if (!fresh.length) return;
-    const key = opening ? null : reactionKeyFor(session.messages.filter((m) => fresh.includes(m.id)));
+    const key = opening ? null : reactionKeyFor(fresh);
     const reaction = key ? pickReaction(key, lang) : null;
     if (reaction) onReaction(reaction);
-    if (enabled) speak(session.id, fresh, reaction?.sound);
+    if (enabled) speak(session.id, fresh.map(speechItem), reaction?.sound);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, session, enabled, speak]);
 
@@ -124,8 +128,8 @@ function useReadAloud(
     handledToggles.current = toggles;
     if (!enabled || !session) return;
     const lastStudent = session.messages.map((m) => m.role).lastIndexOf("student");
-    const latest = session.messages.slice(lastStudent + 1).filter((m) => m.role === "tutor").map((m) => m.id);
-    if (latest.length) speak(session.id, latest);
+    const latest = session.messages.slice(lastStudent + 1).filter((m) => m.role === "tutor");
+    if (latest.length) speak(session.id, latest.map(speechItem));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toggles]);
 }
@@ -152,6 +156,8 @@ export default function TutorSessionPage({ params }: { params: Promise<{ id: str
   const [waitLine, setWaitLine] = useState<Reaction | null>(null);
   const [pop, setPop] = useState<Reaction | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [narrow, setNarrow] = useState(false);
+  const panelRef = useDrawerA11y(panelOpen && narrow, () => setPanelOpen(false));
   const scrollRef = useRef<HTMLDivElement>(null);
   const composer = useRef<ComposerHandle>(null);
 
@@ -170,7 +176,11 @@ export default function TutorSessionPage({ params }: { params: Promise<{ id: str
   }, [failed, missing, id]);
 
   useEffect(() => {
+    const sync = () => setNarrow(window.innerWidth < WIDE);
+    sync();
     setPanelOpen(window.innerWidth >= WIDE);
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
   }, []);
 
   useEffect(() => {
@@ -261,7 +271,7 @@ export default function TutorSessionPage({ params }: { params: Promise<{ id: str
               ? voice.stop()
               : voice.speak(
                   session.id,
-                  session.messages.slice(session.messages.findIndex((x) => x.id === m.id)).filter((x) => x.role === "tutor").map((x) => x.id),
+                  session.messages.slice(session.messages.findIndex((x) => x.id === m.id)).filter((x) => x.role === "tutor").map(speechItem),
                 ),
         }
       : undefined;
@@ -475,8 +485,12 @@ export default function TutorSessionPage({ params }: { params: Promise<{ id: str
                 onClick={() => setPanelOpen(false)}
               />
               <motion.aside
+                ref={panelRef}
+                tabIndex={narrow ? -1 : undefined}
+                role={narrow ? "dialog" : undefined}
+                aria-modal={narrow || undefined}
                 key="panel"
-                className="fixed inset-y-0 right-0 z-50 w-[88%] max-w-[340px] overflow-y-auto border-l border-line bg-cream shadow-lift xl:static xl:z-auto xl:w-[320px] xl:max-w-none xl:shadow-none"
+                className="fixed inset-y-0 right-0 z-50 w-[88%] max-w-[340px] overflow-y-auto border-l border-line bg-cream shadow-lift outline-none xl:static xl:z-auto xl:w-[320px] xl:max-w-none xl:shadow-none"
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}

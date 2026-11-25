@@ -11,7 +11,7 @@ export function useMe() {
   const { data, error, isLoading, mutate } = useSWR<{ user: User }>("/auth/me");
 
   useEffect(() => {
-    if (error instanceof ApiError && error.status === 401) router.replace("/login");
+    if (error instanceof ApiError && error.status === 401) router.replace("/login?expired=1");
   }, [error, router]);
 
   return { user: data?.user, isLoading, error, mutate };
@@ -21,10 +21,14 @@ export function useLogout() {
   const router = useRouter();
   const { mutate } = useSWRConfig();
   return async () => {
-    await api("/auth/logout", { method: "POST" }).catch(() => undefined);
+    try {
+      await api("/auth/logout", { method: "POST" });
+    } catch {
+      // even if logout network call fails, proceed to clear client state
+    }
     // drop every cached response so the next user starts clean
     await mutate(() => true, undefined, { revalidate: false });
-    router.replace("/login");
+    router.replace("/login?logout=1");
     router.refresh();
   };
 }

@@ -9,12 +9,24 @@ interface Health {
   voice?: boolean;
   /** playback speed-up that makes the current voice engine sound like a kid */
   voiceLift?: number;
+  voiceLifts?: { bn: number; en: number };
+  voiceKey?: string;
 }
 
 /** Which AI engine the backend runs, and what it can do (read homework photos, speak). */
 export function useEngine() {
   const { data } = useSWR<Health>("/health", { revalidateOnFocus: false, dedupingInterval: 60_000 });
-  return { provider: data?.llm.provider, model: data?.llm.model, vision: data?.llm.vision ?? false, voice: data?.voice ?? false, voiceLift: data?.voiceLift ?? 1.12, loaded: !!data };
+  const fallbackLift = data?.voiceLift ?? 1.12;
+  return {
+    provider: data?.llm.provider,
+    model: data?.llm.model,
+    vision: data?.llm.vision ?? false,
+    voice: data?.voice ?? false,
+    voiceLift: fallbackLift,
+    voiceLifts: data?.voiceLifts ?? { bn: fallbackLift, en: fallbackLift },
+    voiceKey: data?.voiceKey ?? "default",
+    loaded: !!data,
+  };
 }
 
 /** An AI model the student can pick in the chat. */
@@ -65,9 +77,9 @@ export function useEngineChoice() {
   }, []);
 
   const engines = data?.engines ?? [];
-  const nova = engines.find((e) => e.provider === NOVA_PROVIDER) ?? engines.find((e) => e.isDefault) ?? engines[0];
-  fallbackEngine = nova?.id;
-  const current = engines.find((e) => e.id === picked) ?? nova;
+  const defaultEngine = engines.find((e) => e.isDefault) ?? engines.find((e) => e.provider === NOVA_PROVIDER) ?? engines[0];
+  fallbackEngine = defaultEngine?.id;
+  const current = engines.find((e) => e.id === picked) ?? defaultEngine;
   const choose = (id: string) => {
     try {
       localStorage.setItem(ENGINE_KEY, id);

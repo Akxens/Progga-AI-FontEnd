@@ -18,7 +18,7 @@ import { useMe, useSwitchProfile } from "@/lib/useMe";
 interface StudentSummary {
   id: string;
   name: string;
-  grade: number;
+  grade: number | null;
   avatarSkin: string;
   photoUrl: string | null;
   level: LevelInfo;

@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, Crown } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -17,6 +17,7 @@ import { homeFor } from "@/lib/routes";
 import { paletteFor } from "@/lib/skins";
 import { firstName } from "@/lib/format";
 import { useMe, useSwitchProfile } from "@/lib/useMe";
+import { useActivityHeartbeat } from "@/lib/useActivityHeartbeat";
 import type { User } from "@/lib/types";
 
 const MOBILE_NAV = NAV.filter((n) => ["/home", "/tutor", "/lessons", "/lab", "/arena", "/battle", "/rewards"].includes(n.href));
@@ -30,6 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { features } = useFeatures();
   const mobileNav = visibleNav(MOBILE_NAV, features);
   useSyncAccountLanguage(user);
+  useActivityHeartbeat(user?.role === "STUDENT");
 
   useEffect(() => {
     if (user && user.role !== "STUDENT") router.replace(homeFor(user.role));
@@ -95,13 +97,21 @@ function TopBar({ user }: { user: User }) {
           <Stat icon="🔥" value={n(user.streak ?? 0)} label={t("nav.dayStreak")} className="bg-coral-50 text-coral-600" />
           <Stat icon="🍌" value={n(user.coins ?? 0)} label={t("home.coins", { n: user.coins ?? 0 })} className="hidden bg-banana-100 text-banana-700 sm:flex" />
           <LanguageSwitcher compact />
-          <Link href="/profile" className="ml-0.5 hidden sm:block" aria-label={t("nav.profile")}>
+          <Link
+            href="/leaderboard"
+            aria-label={t("nav.leaderboard")}
+            title={t("nav.leaderboard")}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-white text-ink-soft transition-colors hover:border-brand-200 hover:text-brand-600 lg:hidden"
+          >
+            <Crown size={17} />
+          </Link>
+          <Link href="/profile" className="ml-0.5 block" aria-label={t("nav.profile")} title={t("nav.profile")}>
             <span className="relative block">
               {user.photoUrl ? (
-                <Avatar name={user.name} photoUrl={user.photoUrl} size={44} className="border-2 border-line" />
+                <Avatar name={user.name} photoUrl={user.photoUrl} size={38} className="border-2 border-line sm:h-11 sm:w-11" />
               ) : (
-                <span className="grid h-11 w-11 place-items-center overflow-hidden rounded-2xl border-2 border-line bg-white">
-                  <ProggaBot size={34} float={false} palette={user.skin?.palette ?? paletteFor(user.avatarSkin)} />
+                <span className="grid h-9.5 w-9.5 place-items-center overflow-hidden rounded-2xl border-2 border-line bg-white sm:h-11 sm:w-11">
+                  <ProggaBot size={30} float={false} palette={user.skin?.palette ?? paletteFor(user.avatarSkin)} />
                 </span>
               )}
               {(user.profileStatus?.percent ?? 100) < 100 && <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-banana-400 ring-2 ring-cream" />}

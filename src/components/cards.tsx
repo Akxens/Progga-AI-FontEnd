@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { CheckCircle2, Clock, Play } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useCelebrate } from "@/components/celebrate/CelebrationProvider";
@@ -58,8 +59,7 @@ export function LessonTile({ lesson }: { lesson: LessonCard }) {
     <Link href={`/lessons/${lesson.id}`} className="card group overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lift">
       <div className="relative aspect-video overflow-hidden" style={{ background: `linear-gradient(135deg, ${lesson.subject.color}, ${lesson.subject.color}aa)` }}>
         {lesson.thumbnail ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={lesson.thumbnail} alt="" className="h-full w-full object-cover" />
+          <Image src={lesson.thumbnail} alt="" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
         ) : (
           <>
             <div className="bg-dots absolute inset-0 opacity-40 [filter:invert(1)]" />

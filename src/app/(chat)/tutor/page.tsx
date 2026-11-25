@@ -39,6 +39,7 @@ function NewChat() {
 
   // no subject picker: Progga works the subject out from the question (a lesson link can still pass one)
   const subject = params.get("subject") ?? "general";
+  const wantPhoto = params.has("photo");
   const [question, setQuestion] = useState(() => params.get("q") ?? ""); // a question typed on the landing page
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -49,17 +50,34 @@ function NewChat() {
   // Progga's opening, word by word, while the AI is still writing it
   const [opening, setOpening] = useState<PreviewMessage[]>([]);
   const busy = !!sent && !blocked && !error;
+  const abortRef = useRef<AbortController | null>(null);
+  const previewRef = useRef<string | null>(null);
+
+  const setPreviewUrl = (nextUrl: string | null) => {
+    if (previewRef.current && previewRef.current !== nextUrl) URL.revokeObjectURL(previewRef.current);
+    previewRef.current = nextUrl;
+    setPreview(nextUrl);
+  };
+
+  useEffect(() => () => {
+    abortRef.current?.abort();
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+  }, []);
 
   // "New question" from the sidebar → start fresh
   const fresh = params.get("new");
   useEffect(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
     setSent(null);
+    setOpening([]);
     setQuestion(params.get("q") ?? "");
     setImage(null);
-    setPreview(null);
+    setPreviewUrl(null);
     setBlocked(null);
     setError(null);
     composer.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fresh]);
 
   useEffect(() => {
@@ -78,12 +96,15 @@ function NewChat() {
     if (f.size > 5 * 1024 * 1024) return setError(t("ask.tooBig"));
     setError(null);
     setImage(f);
-    setPreview(URL.createObjectURL(f));
+    setPreviewUrl(URL.createObjectURL(f));
   }
 
   async function submit(text = question) {
     const q = text.trim();
     if (!q && !image) return;
+    abortRef.current?.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     setSent({ text: q, photo: preview });
     setLine(0);
     setError(null);
@@ -91,19 +112,24 @@ function NewChat() {
     setQuestion("");
     setOpening([]);
     try {
-      const res = await startTutorSession(q, subject, image, undefined, setOpening);
+      const res = await startTutorSession(q, subject, image, undefined, setOpening, ctrl.signal);
+      if (ctrl.signal.aborted) return;
       if (res.blocked) {
         setOpening([]);
         setBlocked(res.message);
         return;
       }
       await mutate(`/tutor/sessions/${res.session.id}`, { session: res.session }, { revalidate: false });
+      if (ctrl.signal.aborted) return;
       refreshHistory();
       router.push(`/tutor/${res.session.id}?speak=1`);
     } catch (err) {
+      if (ctrl.signal.aborted) return;
       setOpening([]);
       setError(errorMessage(err));
       setQuestion(q);
+    } finally {
+      if (abortRef.current === ctrl) abortRef.current = null;
     }
   }
 
@@ -218,10 +244,10 @@ function NewChat() {
         disabled={busy}
         canSendEmpty={!!image}
         autoFocus
-        attachment={preview && !busy ? <PhotoPreview src={preview} onRemove={() => { setImage(null); setPreview(null); }} /> : undefined}
+        attachment={preview && !busy ? <PhotoPreview src={preview} onRemove={() => { setImage(null); setPreviewUrl(null); }} /> : undefined}
         tools={
           <>
-            {vision && <PhotoButton onPick={pickImage} disabled={busy} />}
+            {vision && <PhotoButton onPick={pickImage} disabled={busy} highlight={wantPhoto && !image} />}
             <EnginePicker disabled={busy} />
           </>
         }

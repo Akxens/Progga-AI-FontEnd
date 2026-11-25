@@ -26,13 +26,28 @@ async function send(path: string, opts: Options, accept?: string): Promise<Respo
       headers,
       body: opts.form ?? (opts.body !== undefined ? JSON.stringify(opts.body) : undefined),
     });
-  } catch {
+  } catch (err) {
+    if (opts.signal?.aborted) throw err;
     throw offline();
   }
 }
 
 async function readJson<T>(res: Response): Promise<T> {
-  const data = await res.json().catch(() => ({}));
+  const text = await res.text();
+  let data: any;
+  if (!text || text.trim().length === 0) {
+    data = {};
+  } else {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      if (!res.ok) {
+        throw new ApiError(res.status, res.statusText || "Server error", "server_error");
+      }
+      throw new ApiError(res.status, "Invalid response from server", "invalid_response");
+    }
+  }
+
   if (!res.ok) {
     const err = data?.error ?? {};
     throw new ApiError(res.status, err.message ?? "Something went wrong", err.code ?? "error", err.details);
@@ -78,6 +93,7 @@ export async function apiStream<T, P>(path: string, opts: Options, onPreview: (p
       }
     }
   } catch (e) {
+    if (opts.signal?.aborted || (e instanceof DOMException && e.name === "AbortError")) throw e;
     if (e instanceof ApiError) throw e;
     throw offline();
   } finally {

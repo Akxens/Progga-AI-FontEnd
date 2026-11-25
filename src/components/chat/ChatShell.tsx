@@ -16,9 +16,11 @@ import { api, ApiError, errorMessage } from "@/lib/api";
 import { homeFor } from "@/lib/routes";
 import { paletteFor } from "@/lib/skins";
 import type { SessionSummary, User } from "@/lib/types";
+import { useDrawerA11y } from "@/lib/useDrawerA11y";
 import { useMe } from "@/lib/useMe";
 import { VoiceProvider } from "@/lib/voice";
 import { useCelebrate } from "@/components/celebrate/CelebrationProvider";
+import { useActivityHeartbeat } from "@/lib/useActivityHeartbeat";
 
 interface ChatLayout {
   user: User;
@@ -52,6 +54,7 @@ export function ChatShell({ children }: { children: React.ReactNode }) {
   const sidebar = useSidebar(pathname);
   const { mutate } = useSWR<{ sessions: SessionSummary[] }>(user ? "/tutor/sessions" : null);
   useSyncAccountLanguage(user);
+  useActivityHeartbeat(user?.role === "STUDENT");
 
   useEffect(() => {
     try {
@@ -60,6 +63,9 @@ export function ChatShell({ children }: { children: React.ReactNode }) {
       /* storage unavailable — default to expanded */
     }
   }, []);
+
+  const closeDrawer = useCallback(() => setDrawer(false), []);
+  const drawerRef = useDrawerA11y(drawer, closeDrawer);
 
   useEffect(() => setDrawer(false), [pathname]);
 
@@ -123,13 +129,18 @@ export function ChatShell({ children }: { children: React.ReactNode }) {
             <motion.div className="fixed inset-0 z-50 lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={() => setDrawer(false)} />
               <motion.aside
-                className="absolute inset-y-0 left-0 w-[85%] max-w-[320px] bg-cream shadow-lift"
+                ref={drawerRef}
+                tabIndex={-1}
+                role="dialog"
+                aria-modal="true"
+                aria-label={t("nav.ask")}
+                className="absolute inset-y-0 left-0 w-[85%] max-w-[320px] bg-cream shadow-lift outline-none"
                 initial={{ x: "-100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", stiffness: 320, damping: 32 }}
               >
-                <HistoryPanel onClose={() => setDrawer(false)} closeIcon="close" />
+                <HistoryPanel onClose={closeDrawer} closeIcon="close" />
               </motion.aside>
             </motion.div>
           )}
@@ -239,17 +250,49 @@ function HistoryItem({ s, active }: { s: SessionSummary; active: boolean }) {
 
 function HistoryPanel({ onClose, closeIcon }: { onClose: () => void; closeIcon: "collapse" | "close" }) {
   const { user } = useChatLayout();
-  const { t, tx, n } = useT();
+  const { t, tx, n, ui } = useT();
   const pathname = usePathname();
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const { data, error, isLoading, isValidating, mutate } = useSWR<{ sessions: SessionSummary[] }>("/tutor/sessions");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [extra, setExtra] = useState<SessionSummary[]>([]);
+  const [extraCursor, setExtraCursor] = useState<string | null | undefined>(undefined);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQ(query.trim()), 250);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const basePath = `/tutor/sessions${debouncedQ ? `?q=${encodeURIComponent(debouncedQ)}` : ""}`;
+  const { data, error, isLoading, isValidating, mutate } = useSWR<{ sessions: SessionSummary[]; nextCursor?: string | null }>(basePath);
+
+  useEffect(() => {
+    setExtra([]);
+    setExtraCursor(undefined);
+  }, [basePath, data]);
+
+  const cursor = extraCursor === undefined ? data?.nextCursor ?? null : extraCursor;
+
+  async function loadMore() {
+    if (!cursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const sep = basePath.includes("?") ? "&" : "?";
+      const page = await api<{ sessions: SessionSummary[]; nextCursor?: string | null }>(`${basePath}${sep}cursor=${encodeURIComponent(cursor)}`);
+      setExtra((prev) => [...prev, ...page.sessions]);
+      setExtraCursor(page.nextCursor ?? null);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   const filtered = useMemo(() => {
-    const all = data?.sessions ?? [];
+    const seen = new Set<string>();
+    const all = [...(data?.sessions ?? []), ...extra].filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true)));
     const q = query.trim().toLowerCase();
     return q ? all.filter((s) => `${s.title} ${s.topic} ${s.subject}`.toLowerCase().includes(q)) : all;
-  }, [data, query]);
+  }, [data, extra, query]);
   const groups = groupByDate(filtered);
   const lvl = user.level!;
 
@@ -322,6 +365,13 @@ function HistoryPanel({ onClose, closeIcon }: { onClose: () => void; closeIcon: 
             </ul>
           </div>
         ))}
+        {cursor && (
+          <div className="px-3 pt-1">
+            <button type="button" onClick={() => void loadMore()} disabled={loadingMore} className="btn-ghost btn-sm w-full justify-center">
+              {loadingMore ? (ui === "bn" ? "লোড হচ্ছে…" : "Loading…") : ui === "bn" ? "আরও দেখো" : "Load more"}
+            </button>
+          </div>
+        )}
       </nav>
 
       <div className="border-t border-line p-3">

@@ -103,8 +103,8 @@ export function ProfileEditor({ user, barClassName = "bottom-6" }: { user: User;
       const r = await api<{ user: User }>("/me/photo", { method: "PUT", form });
       await store(r.user);
       toast(t("me.photoSaved"), "📸", "mint");
-    } catch {
-      toast(t("me.photoFailed"), "⚠️", "coral");
+    } catch (err) {
+      toast(errorMessage(err), "⚠️", "coral");
     } finally {
       setPhotoBusy(false);
     }
