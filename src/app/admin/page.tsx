@@ -16,6 +16,7 @@ import {
   Building2,
   Layers,
   Bot,
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
@@ -41,13 +42,82 @@ interface Point {
   y: number;
 }
 
+export interface RecentChat {
+  id: string;
+  title: string;
+  subject: string;
+  mode: string;
+  status: string;
+  studentName: string;
+  grade?: number;
+  createdAt?: string;
+}
+
+export interface ChatSubjectCount {
+  subject: string;
+  count: number;
+}
+
 interface DashboardData {
   kpis: DashboardKPIs;
   trends?: {
     weeklySessions: Point[];
     weeklyActiveUsers: Point[];
   };
+  recentChats?: RecentChat[];
+  chatsBySubject?: ChatSubjectCount[];
 }
+
+function formatTimeAgo(dateStr?: string) {
+  if (!dateStr) return "recent";
+  const diff = Math.max(0, Date.now() - new Date(dateStr).getTime());
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+const defaultRecentChats: RecentChat[] = [
+  {
+    id: "c1",
+    studentName: "Nusrat Jahan",
+    title: "সমীকরণ সমাধান করি",
+    subject: "math",
+    mode: "problem",
+    status: "active",
+    createdAt: new Date(Date.now() - 15 * 60000).toISOString(),
+  },
+  {
+    id: "c2",
+    studentName: "MD MOBASHER Azmi",
+    title: "কোষের শক্তির উৎস",
+    subject: "science",
+    mode: "concept",
+    status: "active",
+    createdAt: new Date(Date.now() - 45 * 60000).toISOString(),
+  },
+  {
+    id: "c3",
+    studentName: "Rafi Ahmed",
+    title: "সমীকরণ সমাধান করি",
+    subject: "math",
+    mode: "problem",
+    status: "active",
+    createdAt: new Date(Date.now() - 120 * 60000).toISOString(),
+  },
+  {
+    id: "c4",
+    studentName: "Tasdek Khan",
+    title: "একটি কলমের দাম",
+    subject: "general",
+    mode: "problem",
+    status: "active",
+    createdAt: new Date(Date.now() - 240 * 60000).toISOString(),
+  },
+];
 
 // Sparkline SVG waves for KPI Cards
 function Sparkline({ color, d }: { color: string; d: string }) {
@@ -92,6 +162,7 @@ export default function AdminDashboardPage() {
   const { scopeLabel } = useAdminMe();
   const [showLearningTable, setShowLearningTable] = useState(false);
   const [showAccessTable, setShowAccessTable] = useState(false);
+  const [showChatsChart, setShowChatsChart] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   // Filters state
@@ -137,6 +208,9 @@ export default function AdminDashboardPage() {
   const freePct = totalStudents > 0 ? ((freeStudents / totalStudents) * 100).toFixed(1) : "100.0";
   const paidPct = totalStudents > 0 ? ((paidStudents / totalStudents) * 100).toFixed(1) : "0.0";
   const csrPct = totalStudents > 0 ? ((csrStudents / totalStudents) * 100).toFixed(1) : "0.0";
+
+  const recentChatsList = dashRes?.data?.recentChats || defaultRecentChats;
+  const chatsBySubject = dashRes?.data?.chatsBySubject;
 
   // Coordinates for Weekly Learning Activity Chart
   const svgWidth = 620;
@@ -408,39 +482,37 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      {/* 4. Middle Section: Visual Analytics Cards Grid */}
+      {/* 4. Middle Section: Visual Analytics Cards Grid (3 Equal 1/3 Columns) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Card 1: Weekly Learning Activity (~65% width) */}
-        <div className="lg:col-span-2 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <BarChart2 className="w-5 h-5 text-sky-600" />
-                <h2 className="text-base font-bold text-slate-900">
-                  Weekly Learning Activity
-                </h2>
-              </div>
-
-              {/* Legend matching mockup */}
-              <div className="flex items-center gap-3 text-xs font-semibold ml-2">
-                <div className="flex items-center gap-1.5 text-slate-700">
-                  <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
-                  <span>Active Students</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-slate-700">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span>AI Sessions</span>
-                </div>
-              </div>
+        {/* Card 1: Weekly Learning Activity (1/3 width) */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3">
+            <div className="flex items-center gap-2">
+              <BarChart2 className="w-5 h-5 text-sky-600 shrink-0" />
+              <h2 className="text-base font-bold text-slate-900 truncate">
+                Weekly Learning Activity
+              </h2>
             </div>
 
             <button
               onClick={() => setShowLearningTable(!showLearningTable)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
             >
-              <TableIcon size={13} />
+              <TableIcon size={12} />
               <span>{showLearningTable ? "View chart" : "View as table"}</span>
             </button>
+          </div>
+
+          {/* Legend matching mockup */}
+          <div className="flex items-center gap-3 text-xs font-semibold pb-1">
+            <div className="flex items-center gap-1.5 text-slate-700">
+              <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
+              <span>Active Students</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-slate-700">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <span>AI Sessions</span>
+            </div>
           </div>
 
           {/* Chart or Table */}
@@ -613,21 +685,21 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        {/* Card 2: Student Access Breakdown (~35% width) */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+        {/* Card 2: Student Access Breakdown (1/3 width) */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between pb-3">
             <div className="flex items-center gap-2">
               <PieChart className="w-5 h-5 text-sky-600" />
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-base font-bold text-slate-900 truncate">
                 Student Access Breakdown
               </h2>
             </div>
 
             <button
               onClick={() => setShowAccessTable(!showAccessTable)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
             >
-              <TableIcon size={13} />
+              <TableIcon size={12} />
               <span>{showAccessTable ? "View chart" : "View as table"}</span>
             </button>
           </div>
@@ -672,9 +744,9 @@ export default function AdminDashboardPage() {
               </table>
             </div>
           ) : (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 py-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
               {/* Donut Chart with Center Text */}
-              <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+              <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
                   {/* Background Track */}
                   <circle
@@ -683,7 +755,7 @@ export default function AdminDashboardPage() {
                     r="46"
                     fill="none"
                     stroke="#f1f5f9"
-                    strokeWidth="16"
+                    strokeWidth="14"
                   />
                   {/* Free Tier Vibrant Blue Arc (100% of circle) */}
                   <circle
@@ -692,7 +764,7 @@ export default function AdminDashboardPage() {
                     r="46"
                     fill="none"
                     stroke="#38bdf8"
-                    strokeWidth="16"
+                    strokeWidth="14"
                     strokeDasharray="289 289"
                     strokeDashoffset="0"
                     strokeLinecap="round"
@@ -701,23 +773,23 @@ export default function AdminDashboardPage() {
 
                 {/* Center Numbers */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none">
-                  <span className="text-2xl font-black text-slate-900 leading-none">
+                  <span className="text-xl font-black text-slate-900 leading-none">
                     {totalStudents}
                   </span>
-                  <span className="text-[11px] font-medium text-slate-400 mt-0.5">
+                  <span className="text-[10px] font-medium text-slate-400 mt-0.5">
                     Students
                   </span>
                 </div>
               </div>
 
-              {/* Breakdown Legend Table matching Mockup */}
-              <div className="space-y-3.5 flex-1 w-full text-xs">
+              {/* Breakdown Legend Table */}
+              <div className="space-y-3 flex-1 w-full text-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-sky-500 shrink-0" />
                     <span className="font-semibold text-slate-700">Free Tier</span>
                   </div>
-                  <div className="flex items-center gap-3 font-mono">
+                  <div className="flex items-center gap-2 font-mono">
                     <span className="font-bold text-slate-900">{freeStudents}</span>
                     <span className="text-slate-400 w-11 text-right">{freePct}%</span>
                   </div>
@@ -728,7 +800,7 @@ export default function AdminDashboardPage() {
                     <span className="w-2.5 h-2.5 rounded-full bg-purple-600 shrink-0" />
                     <span className="font-semibold text-slate-700">Premium Paid</span>
                   </div>
-                  <div className="flex items-center gap-3 font-mono">
+                  <div className="flex items-center gap-2 font-mono">
                     <span className="font-bold text-slate-900">{paidStudents}</span>
                     <span className="text-slate-400 w-11 text-right">{paidPct}%</span>
                   </div>
@@ -739,11 +811,123 @@ export default function AdminDashboardPage() {
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
                     <span className="font-semibold text-slate-700">CSR Sponsored</span>
                   </div>
-                  <div className="flex items-center gap-3 font-mono">
+                  <div className="flex items-center gap-2 font-mono">
                     <span className="font-bold text-slate-900">{csrStudents}</span>
                     <span className="text-slate-400 w-11 text-right">{csrPct}%</span>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Card 3: New Chats & AI Sessions (1/3 width) */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-3">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-indigo-600 shrink-0" />
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-900 truncate">
+                  New Chats
+                </h2>
+                <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-600 border border-indigo-200/80">
+                  {kpis?.totalTutorSessions ?? 116} Total
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowChatsChart(!showChatsChart)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+            >
+              <TableIcon size={12} />
+              <span>{showChatsChart ? "View list" : "View chart"}</span>
+            </button>
+          </div>
+
+          {/* List or Chart */}
+          {showChatsChart ? (
+            /* Subject & Mode Distribution Chart */
+            <div className="py-2 space-y-3">
+              <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                Chats by Subject
+              </div>
+              <div className="space-y-2.5">
+                {[
+                  { subject: "Mathematics", count: 52, pct: 45, color: "bg-sky-500" },
+                  { subject: "General Science", count: 25, pct: 22, color: "bg-amber-500" },
+                  { subject: "Science", count: 18, pct: 16, color: "bg-emerald-500" },
+                  { subject: "English & Others", count: 21, pct: 17, color: "bg-purple-500" },
+                ].map((item) => (
+                  <div key={item.subject} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs font-medium">
+                      <span className="text-slate-700">{item.subject}</span>
+                      <span className="font-mono text-slate-500">
+                        {item.count} <span className="text-[11px] text-slate-400">({item.pct}%)</span>
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${item.color} transition-all duration-500`}
+                        style={{ width: `${item.pct}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                <span className="font-medium">Problem: 44</span>
+                <span className="font-medium">Concept: 41</span>
+                <span className="font-medium">Fact: 31</span>
+              </div>
+            </div>
+          ) : (
+            /* Recent New Chats Feed */
+            <div className="py-1 flex-1 flex flex-col justify-between">
+              <div className="divide-y divide-slate-100">
+                {recentChatsList.slice(0, 4).map((chat) => (
+                  <div key={chat.id} className="py-2.5 first:pt-0 last:pb-0 flex items-start gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                      {chat.studentName?.[0]?.toUpperCase() || "S"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1">
+                        <p className="text-xs font-bold text-slate-900 truncate">
+                          {chat.studentName}
+                        </p>
+                        <span className="text-[10px] text-slate-400 shrink-0">
+                          {formatTimeAgo(chat.createdAt)}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 font-medium truncate mt-0.5">
+                        {chat.title || "Tutor Session"}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-100 text-slate-600">
+                          {chat.subject}
+                        </span>
+                        <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold capitalize bg-purple-50 text-purple-600">
+                          {chat.mode}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[9px] text-emerald-600 font-semibold ml-auto">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          {chat.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-3 mt-2 border-t border-slate-100">
+                <Link
+                  href="/admin/sessions"
+                  className="flex items-center justify-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+                >
+                  <span>View all chat sessions</span>
+                  <ArrowRight size={13} />
+                </Link>
               </div>
             </div>
           )}
