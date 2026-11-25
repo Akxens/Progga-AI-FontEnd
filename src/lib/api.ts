@@ -11,7 +11,8 @@ export class ApiError extends Error {
   }
 }
 
-export const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api").replace(/\/+$/, "");
+const rawBackend = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL || "http://localhost:4000";
+export const API_BASE = `${rawBackend.replace(/\/+$/, "")}/api`;
 
 type Options = { method?: string; body?: unknown; form?: FormData; signal?: AbortSignal };
 
