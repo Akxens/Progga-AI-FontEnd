@@ -64,7 +64,7 @@ async function send(path: string, opts: Options, accept?: string): Promise<Respo
   }
 }
 
-async function readJson<T>(res: Response): Promise<T> {
+async function readJson<T>(res: Response, path?: string): Promise<T> {
   const text = await res.text();
   let data: any;
   if (!text || text.trim().length === 0) {
@@ -83,7 +83,7 @@ async function readJson<T>(res: Response): Promise<T> {
   if (data && typeof data === "object" && typeof (data as any).token === "string") {
     setAuthToken((data as any).token);
   }
-  if (res.status === 401) {
+  if (res.status === 401 && path && (path === "/auth/me" || path === "/api/auth/me")) {
     setAuthToken(null);
   }
 
@@ -95,7 +95,7 @@ async function readJson<T>(res: Response): Promise<T> {
 }
 
 export async function api<T>(path: string, opts: Options = {}): Promise<T> {
-  return readJson<T>(await send(path, opts));
+  return readJson<T>(await send(path, opts), path);
 }
 
 /**
@@ -105,7 +105,7 @@ export async function api<T>(path: string, opts: Options = {}): Promise<T> {
  */
 export async function apiStream<T, P>(path: string, opts: Options, onPreview: (preview: P) => void): Promise<T> {
   const res = await send(path, opts, "text/event-stream");
-  if (!res.ok || !res.body || !res.headers.get("content-type")?.includes("text/event-stream")) return readJson<T>(res);
+  if (!res.ok || !res.body || !res.headers.get("content-type")?.includes("text/event-stream")) return readJson<T>(res, path);
 
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
   let buffer = "";

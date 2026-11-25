@@ -1,4 +1,4 @@
-import { API_BASE, ApiError } from "../api";
+import { API_BASE, ApiError, getAuthToken, setAuthToken } from "../api";
 
 export const ADMIN_WORKSPACE_KEY = "progga.admin.workspace";
 
@@ -59,6 +59,11 @@ export async function adminApi<T>(path: string, opts: AdminApiOptions = {}): Pro
     headers["X-Workspace"] = ws;
   }
 
+  const token = getAuthToken();
+  if (token && !headers["Authorization"] && !headers["authorization"]) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   if (opts.idempotent) {
     try {
       headers["Idempotency-Key"] = crypto.randomUUID();
@@ -92,6 +97,10 @@ export async function adminApi<T>(path: string, opts: AdminApiOptions = {}): Pro
       }
       throw new ApiError(res.status, "Invalid response from server", "invalid_response");
     }
+  }
+
+  if (json && typeof json === "object" && typeof json.token === "string") {
+    setAuthToken(json.token);
   }
 
   if (!res.ok) {

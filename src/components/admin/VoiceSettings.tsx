@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useCelebrate } from "@/components/celebrate/CelebrationProvider";
 import { ErrorNote, PageLoader, Spinner } from "@/components/ui/primitives";
-import { api, errorMessage } from "@/lib/api";
+import { API_BASE, api, errorMessage, getAuthToken } from "@/lib/api";
 
 type TtsProviderId = "elevenlabs" | "indicf5" | "openai" | "gemini" | "azure";
 type Lang = "bn" | "en";
@@ -118,10 +118,14 @@ export function VoiceSettings() {
     setError(null);
     setPreviewing("loading");
     try {
-      const res = await fetch("/api/admin/voice/preview", {
+      const token = getAuthToken();
+      const res = await fetch(`${API_BASE}/admin/voice/preview`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ ...choice, text: sample }),
       });
       if (!res.ok) {
