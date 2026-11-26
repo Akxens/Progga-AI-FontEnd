@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useEngine } from "./useEngine";
-import { API_BASE } from "./api";
+import { API_BASE, authHeaders } from "./api";
 
 // Read-aloud for Ask Progga: one shared <audio> element plays Progga's replies
 // in order. The first clip streams from the API (speaking starts fast); the
@@ -145,7 +145,7 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
     }
     blobs.current.set(
       url,
-      fetch(url, { credentials: "include" })
+      fetch(url, { credentials: "include", headers: authHeaders() })
         .then((r) => (r.ok ? r.blob() : null))
         .then((b) => (b ? URL.createObjectURL(b) : null))
         .catch(() => null),
@@ -166,6 +166,8 @@ export function VoiceProvider({ children, onError }: { children: React.ReactNode
     const el = player();
     setSpeakingId(null);
     setLoadingId(next.id);
+    // speech clips need the bearer token, which a bare <audio src> can't send
+    if (next.id && !blobs.current.has(next.url)) prefetch(next.url);
     const cached = blobs.current.has(next.url) ? await blobs.current.get(next.url) : null;
     if (gen !== generation.current) return;
     const lift = next.id ? (next.lang === "en" ? liftsRef.current.en : liftsRef.current.bn) : KID_LIFT;

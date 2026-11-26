@@ -1,4 +1,5 @@
-// Thin, typed client for the Progga Node API (proxied at /api by next.config).
+// Thin, typed client for the Progga Node API. The browser calls the API host
+// directly (https://proggaapi.akxens.com); nothing goes through the Next.js server.
 
 export class ApiError extends Error {
   constructor(
@@ -11,7 +12,10 @@ export class ApiError extends Error {
   }
 }
 
-const rawBackend = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL || "http://localhost:4000";
+const PROD_BACKEND = "https://proggaapi.akxens.com";
+const rawBackend =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  (process.env.NODE_ENV === "production" ? PROD_BACKEND : "http://localhost:4000");
 export const API_BASE = `${rawBackend.replace(/\/+$/, "")}/api`;
 
 const TOKEN_KEY = "progga_auth_token";
@@ -22,6 +26,30 @@ export function getAuthToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   } catch {
     return null;
+  }
+}
+
+// The API lives on another domain, so its cookie is never visible to this site.
+// Mirror the token into a first-party cookie so src/middleware.ts can see it.
+const COOKIE_NAME = "progga_token";
+
+function writeTokenCookie(token: string | null) {
+  try {
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    if (token) {
+      let maxAge = 60 * 60 * 24 * 30;
+      try {
+        const exp = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).exp;
+        if (typeof exp === "number") maxAge = Math.max(0, Math.floor(exp - Date.now() / 1000));
+      } catch {
+        // not a JWT we can read; keep the default
+      }
+      document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`;
+    } else {
+      document.cookie = `${COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
+    }
+  } catch {
+    // ignore
   }
 }
 
@@ -36,6 +64,13 @@ export function setAuthToken(token: string | null) {
   } catch {
     // ignore
   }
+  writeTokenCookie(token);
+}
+
+/** Authorization header for raw fetches that don't go through `api`. */
+export function authHeaders(): Record<string, string> {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 type Options = { method?: string; body?: unknown; form?: FormData; signal?: AbortSignal };

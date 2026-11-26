@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { API_BASE, api } from "./api";
+import { API_BASE, api, authHeaders } from "./api";
 
 function extractModule(pathname: string): string {
   if (pathname.startsWith("/tutor")) return "tutor";
@@ -124,7 +124,7 @@ export function useActivityHeartbeat(enabled = true) {
     // Send session_ended via sendBeacon on pagehide
     const onPageHide = () => {
       const sessionId = sessionIdRef.current;
-      if (!sessionId || !navigator.sendBeacon) return;
+      if (!sessionId) return;
 
       const eventId = crypto.randomUUID();
       const payload = JSON.stringify({
@@ -138,8 +138,14 @@ export function useActivityHeartbeat(enabled = true) {
         ],
       });
 
-      const blob = new Blob([payload], { type: "application/json" });
-      navigator.sendBeacon(`${API_BASE}/events`, blob);
+      // keepalive fetch instead of sendBeacon: the API is cross-origin and needs the bearer token
+      void fetch(`${API_BASE}/events`, {
+        method: "POST",
+        keepalive: true,
+        credentials: "include",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: payload,
+      }).catch(() => {});
     };
 
     window.addEventListener("pagehide", onPageHide);
